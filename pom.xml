@@ -64,7 +64,6 @@
 		<module>bs-banking-services-common</module>
 		<module>bs-banking-services-ade</module>
 		<module>bs-banking-services-checkiban</module>
-		<module>bs-banking-services-cobadge</module>
 		<module>bs-banking-services-web</module>
 	</modules>
 

@@ -64,13 +64,6 @@
             <version>0.0.1</version>
         </dependency>
 
-        <!-- CO BADGE -->
-        <dependency>
-            <groupId>it.pagopa.bs</groupId>
-            <artifactId>bs-banking-services-cobadge</artifactId>
-            <version>0.0.1</version>
-        </dependency>
-
         <!-- MODEL VALIDATION -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
