@@ -76,6 +76,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- ANNOTATION PRE-PROCESSOR -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- WEBFLUX -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
