@@ -57,6 +57,13 @@
 
     <dependencies>
 
+        <!-- COMMON -->
+        <dependency>
+            <groupId>it.pagopa.bs</groupId>
+            <artifactId>bs-banking-services-common</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
         <!-- CHECK IBAN -->
         <dependency>
             <groupId>it.pagopa.bs</groupId>
@@ -87,13 +94,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-
-        <!-- LOMBOK -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- STARTER TOMCAT -->
