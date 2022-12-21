@@ -109,6 +109,33 @@
             <version>4.0.1</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+
+        <!-- MY BATIS -->
+        <dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+
+        <!-- Spring JDBC -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+
+        <!-- ORACLE JDBC -->
+        <dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc8</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
         <!-- STARTER TEST -->
         <dependency>
