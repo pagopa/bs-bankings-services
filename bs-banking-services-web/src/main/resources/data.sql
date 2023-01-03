@@ -1,0 +1,1 @@
+INSERT into pagopa_ma_response_whitelist values ('cc', 'bb', 'aa');
