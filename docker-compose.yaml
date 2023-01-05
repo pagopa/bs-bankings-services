@@ -1,0 +1,89 @@
+version: '3'
+name: bs-banking-services
+services:
+
+  zookeeper:
+    image: bitnami/zookeeper:3.6.2
+    container_name: zookeeper
+    restart: always
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: yes
+    healthcheck:
+      test: "./opt/bitnami/zookeeper/bin/zkServer.sh status"
+      interval: 7s
+      timeout: 10s
+      retries: 30
+      start_period: 40s
+    ports:
+      - 2181:2181
+    
+  kafka:
+    image: bitnami/kafka:3.3.1
+    container_name: kafka
+    restart: always
+    environment:
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_LISTENERS: CLIENT://:9092,EXTERNAL://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: CLIENT
+      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_ZOOKEEPER_TLS_VERIFY_HOSTNAME: false
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
+    healthcheck:
+      test: "kafka-topics.sh --bootstrap-server host.docker.internal:9092 --describe --topic bs.pagopa.checkiban.reports"
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 40s
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - 9092:9092
+
+  kafka-init:
+    image: bitnami/kafka:3.3.1
+    container_name: kafka-init
+    command: "kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic bs.pagopa.checkiban.reports"
+    depends_on:
+      kafka:
+        condition: service_started
+    init: true
+    
+  oracle:
+    image: gvenzl/oracle-xe:21-slim-faststart
+    container_name: oracle
+    environment:
+      ORACLE_DATABASE: bs
+      ORACLE_PASSWORD: test
+    healthcheck:
+      test: "cat /opt/oracle/diag/rdbms/xe/XE/alert/log.xml | grep 'Pluggable database BS opened read write' || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 50
+    volumes:
+      - ./schema:/container-entrypoint-initdb.d
+    ports:
+      - 1521:1521
+    networks:
+      - backend
+    
+  backend:
+    container_name: bs-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      kafka:
+        condition: service_healthy
+      oracle:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    networks:
+      - backend
+
+networks:
+  backend:
