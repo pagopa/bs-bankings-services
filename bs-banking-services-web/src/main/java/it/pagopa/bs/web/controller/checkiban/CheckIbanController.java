@@ -17,12 +17,12 @@ import reactor.core.publisher.Mono;
 @RequestMapping("${pagopa.bs.api-version-path}")
 public class CheckIbanController {
 
-    private final DualMapper duabDualMapper;
+    private final DualMapper dualMapper;
 
     @PostMapping("/validate-account-holder")
     public Mono<Void> validateAccountHolder() {
         log.info("test");
-        var a = duabDualMapper.getLiveness();
+        var a = dualMapper.getLiveness();
         return Mono.empty();
     }
 }
