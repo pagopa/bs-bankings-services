@@ -20,7 +20,6 @@ public class Institution implements Serializable {
     private String cdcCode;
     private String cdcDescription;
     private String credentialId;
-    private String fabrickUserId;
     private String fiscalCode;
     private ZonedDateTime createdDatetime;
     private ZonedDateTime updatedDatetime;

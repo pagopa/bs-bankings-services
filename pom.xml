@@ -30,6 +30,7 @@
 		<jackson.version>2.13.3</jackson.version>
 		<spring.boot.version>2.6.6</spring.boot.version>
 		<spring.framework.version>5.3.18</spring.framework.version>
+		<openapi.version>1.6.7</openapi.version>
 	</properties>
 
 	<build>
