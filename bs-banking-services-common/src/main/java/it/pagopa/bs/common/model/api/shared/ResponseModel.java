@@ -1,4 +1,4 @@
-package it.pagopa.bs.common.model.api;
+package it.pagopa.bs.common.model.api.shared;
 
 import java.io.Serializable;
 import java.util.Collection;

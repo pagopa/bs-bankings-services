@@ -1,6 +1,6 @@
 package it.pagopa.bs.common.util;
 
-import it.pagopa.bs.common.model.api.PaginationModel;
+import it.pagopa.bs.common.model.api.shared.PaginationModel;
 
 public class PaginationUtil {
 
