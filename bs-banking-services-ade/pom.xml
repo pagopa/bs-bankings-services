@@ -21,6 +21,13 @@
             <version>0.0.1</version>
         </dependency>
 
+        <!-- BS CHECK IBAN -->
+        <dependency>
+            <groupId>it.pagopa.bs</groupId>
+            <artifactId>bs-banking-services-checkiban</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -14,10 +14,10 @@
 
     <dependencies>
 
-        <!-- ADE -->
+        <!-- COMMON -->
         <dependency>
             <groupId>it.pagopa.bs</groupId>
-            <artifactId>bs-banking-services-ade</artifactId>
+            <artifactId>bs-banking-services-common</artifactId>
             <version>0.0.1</version>
         </dependency>
 
