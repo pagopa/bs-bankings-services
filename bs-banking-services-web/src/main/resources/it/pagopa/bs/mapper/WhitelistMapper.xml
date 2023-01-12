@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.WhitelistMapper">
+
+    <resultMap id="whitelist" type="it.pagopa.bs.checkiban.model.persistence.Whitelist">
+        <id column="rwl_response_key" property="responseKey" />
+        <result column="rwl_service_code" property="serviceCode" />
+        <result column="rwl_response_value" property="responseValue" />
+    </resultMap>
+
+    <select id="search" resultMap="whitelist">
+        SELECT * FROM pagopa_ma_response_whitelist
+        <where>
+            <if test="filter.serviceCode != null and filter.serviceCode != ''">
+                AND rwl_service_code = #{filter.serviceCode}
+            </if>
+        </where>
+        ORDER BY rwl_response_key ASC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="searchCount" resultType="int">
+        SELECT COUNT(*) FROM pagopa_ma_response_whitelist
+        <where>
+            <if test="filter.serviceCode != null and filter.serviceCode != ''">
+                AND rwl_service_code = #{filter.serviceCode}
+            </if>
+        </where>
+    </select>
+
+    <insert id="createOne">
+        INSERT INTO pagopa_ma_response_whitelist
+        (
+            rwl_response_key,
+            rwl_response_value,
+            rwl_service_code
+        )
+        VALUES
+        (
+            #{whitelist.responseKey},
+            #{whitelist.responseValue},
+            #{whitelist.serviceCode}
+        )
+    </insert>
+
+    <select id="getOneByKey" resultMap="whitelist">
+        SELECT * FROM pagopa_ma_response_whitelist
+        WHERE rwl_response_key = #{key}
+    </select>
+
+    <select id="getOneByKeyOrWithAnyCredential" resultMap="whitelist">
+        SELECT * FROM pagopa_ma_response_whitelist
+        WHERE (rwl_response_key = #{key} OR rwl_response_key = #{anyCredentialKey})
+    </select>
+
+    <update id="updateOne">
+        UPDATE pagopa_ma_response_whitelist
+        <set>
+            rwl_response_value = #{whitelist.responseValue},
+            rwl_service_code = #{whitelist.serviceCode}
+        </set>
+        WHERE rwl_response_key = #{key}
+    </update>
+
+    <delete id="deleteOneByKey">
+        DELETE FROM pagopa_ma_response_whitelist
+        WHERE rwl_response_key = #{key}
+    </delete>
+
+</mapper>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.SouthConfigMapper">
+
+    <resultMap id="config" type="it.pagopa.bs.checkiban.model.persistence.SouthConfig">
+        <id column="scf_id" property="southConfigId" />
+        <result column="scf_code" property="southConfigCode" />
+        <result column="scf_description" property="description" />
+        <result column="scf_connector_name" property="connectorName" />
+        <result column="scf_connector_type" property="connectorType" />
+        <result column="scf_model_version" property="modelVersion" />
+        <result column="scf_model_config" property="modelConfig" />
+        <result column="scf_created_datetime" property="createdDatetime" />
+        <result column="scf_updated_datetime" property="updatedDatetime" />
+    </resultMap>
+
+    <select id="searchPspApiStandard" resultMap="config">
+        SELECT * FROM pagopa_ma_south_config sc
+        <where>
+            AND sc.scf_is_deleted = 0
+            AND sc.scf_connector_type = 'PSP_API_STANDARD'
+            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
+                AND sc.scf_code = #{filter.southConfigCode}
+            </if>
+            <if test="filter.connectorName != null and filter.connectorName != ''">
+                AND sc.scf_connector_name = #{filter.connectorName}
+            </if>
+            <if test="filter.modelVersion > 0">
+                AND sc.scf_model_version = #{filter.modelVersion}
+            </if>
+            <if test="filter.southPath != null and filter.southPath != ''">
+                AND sc.scf_model_config.southPath LIKE '%' || #{filter.southPath} || '%'
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+        </where>
+        ORDER BY scf_id ASC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="searchCountPspApiStandard" resultType="int">
+        SELECT COUNT(*) FROM pagopa_ma_south_config sc
+        <where>
+            AND sc.scf_is_deleted = 0
+            AND sc.scf_connector_type = 'PSP_API_STANDARD'
+            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
+                AND sc.scf_code = #{filter.southConfigCode}
+            </if>
+            <if test="filter.connectorName != null and filter.connectorName != ''">
+                AND sc.scf_connector_name = #{filter.connectorName}
+            </if>
+            <if test="filter.connectorType != null">
+                AND sc.scf_connector_type = #{filter.connectorType}
+            </if>
+            <if test="filter.modelVersion > 0">
+                AND sc.scf_model_version = #{filter.modelVersion}
+            </if>
+            <if test="filter.southPath != null and filter.southPath != ''">
+                AND sc.scf_model_config.southPath LIKE '%' || #{filter.southPath} || '%'
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+        </where>
+    </select>
+
+    <sql id="searchPspBatchFilters">
+        <where>
+            AND sc.scf_is_deleted = 0
+            AND sc.scf_connector_type = 'PSP_BATCH_STANDARD'
+            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
+                AND sc.scf_code = #{filter.southConfigCode}
+            </if>
+            <if test="filter.connectorName != null and filter.connectorName != ''">
+                AND sc.scf_connector_name = #{filter.connectorName}
+            </if>
+            <if test="filter.modelVersion > 0">
+                AND sc.scf_model_version = #{filter.modelVersion}
+            </if>
+            <if test="filter.maxRecords != null">
+                AND sc.scf_model_config.maxRecords LIKE '%' || #{filter.maxRecords} || '%'
+            </if>
+
+            <if test="filter.writeCutoffTime != null">
+                AND sc.scf_model_config.writeCutoffTime = #{filter.writeCutoffTime}
+            </if>
+            <if test="filter.readCutoffTime != null">
+                AND sc.scf_model_config.readCutoffTime = #{filter.readCutoffTime}
+            </if>
+
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+        </where>
+    </sql>
+
+    <select id="searchPspBatchStandard" resultMap="config">
+        SELECT * FROM pagopa_ma_south_config sc
+        <include refid="searchPspBatchFilters" />
+        ORDER BY scf_id ASC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="searchCountPspBatchStandard" resultType="int">
+        SELECT COUNT(*) FROM pagopa_ma_south_config sc
+        <include refid="searchPspBatchFilters" />
+    </select>
+
+    <insert id="createOne" useGeneratedKeys="true" keyProperty="southConfigId" keyColumn="scf_id">
+        INSERT INTO pagopa_ma_south_config
+        (
+            scf_id,
+            scf_code,
+            scf_description,
+            scf_connector_name,
+            scf_connector_type,
+            scf_model_version,
+            scf_model_config
+        )
+        VALUES
+        (
+            PAGOPA_SQ_SCF_ID.nextval,
+            #{config.southConfigCode},
+            #{config.description},
+            #{config.connectorName},
+            #{config.connectorType},
+            #{config.modelVersion},
+            #{config.modelConfig}
+        )
+    </insert>
+
+    <select id="getOneById" resultMap="config">
+        SELECT * FROM pagopa_ma_south_config
+        WHERE scf_id = #{southConfigId}
+        AND scf_is_deleted = 0
+    </select>
+
+    <select id="getOneByIdAndConnectorType" resultMap="config">
+        SELECT * FROM pagopa_ma_south_config
+        WHERE scf_id = #{southConfigId}
+        AND scf_connector_type = #{connectorType}
+        AND scf_is_deleted = 0
+    </select>
+
+    <select id="getOneByCode" resultMap="config">
+        SELECT * FROM pagopa_ma_south_config
+        WHERE scf_code = #{southConfigCode}
+        AND scf_is_deleted = 0
+    </select>
+
+    <update id="updateOne" flushCache="true">
+        UPDATE pagopa_ma_south_config
+        <set>
+            scf_updated_datetime = CURRENT_TIMESTAMP,
+            <if test="config.description != null and config.description != ''">
+                scf_description = #{config.description},
+            </if>
+            <if test="config.connectorName != null and config.connectorName != ''">
+                scf_connector_name = #{config.connectorName},
+            </if>
+            <if test="config.modelVersion != null and config.modelVersion != ''">
+                scf_model_version = #{config.modelVersion},
+            </if>
+            <if test="config.modelConfig != null and config.modelConfig != ''">
+                scf_model_config = #{config.modelConfig},
+            </if>
+        </set>
+        WHERE scf_id = #{southConfigId}
+        AND scf_is_deleted = 0
+    </update>
+
+    <update id="deleteOneById">
+        UPDATE pagopa_ma_south_config
+        SET
+            scf_is_deleted = 1,
+            scf_deleted_datetime = CURRENT_TIMESTAMP
+        WHERE scf_id = #{southConfigId}
+        AND scf_is_deleted = 0
+    </update>
+
+    <select id="getAllByConnectorTypeAlsoDeleted" resultMap="config">
+        SELECT * FROM pagopa_ma_south_config
+        WHERE scf_connector_type = #{connectorType}
+    </select>
+
+    <select id="getOneByCodeAlsoDeleted" resultMap="config">
+        SELECT * FROM pagopa_ma_south_config
+        WHERE scf_code = #{connectorCode}
+    </select>
+
+</mapper>

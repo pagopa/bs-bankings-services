@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.ServiceMapper">
+
+    <resultMap id="service" type="it.pagopa.bs.checkiban.model.persistence.PagoPaService">
+        <id column="srv_id" property="serviceId" />
+        <result column="srv_service_code" property="serviceCode" />
+        <result column="srv_service_description" property="description" />
+        <result column="srv_created_datetime" property="createdDatetime" />
+        <result column="srv_updated_datetime" property="updatedDatetime" />
+    </resultMap>
+
+    <select id="search" resultMap="service">
+        SELECT * FROM pagopa_ma_service
+        <where>
+            srv_is_deleted = 0
+            <if test="filter.serviceCode != null">
+                AND srv_service_code = #{filter.serviceCode}
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+        </where>
+        ORDER BY srv_id ASC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="searchCount" resultType="int">
+        SELECT COUNT(*) FROM pagopa_ma_service
+        <where>
+            srv_is_deleted = 0
+            <if test="filter.serviceCode != null">
+                AND srv_service_code = #{filter.serviceCode}
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+        </where>
+    </select>
+
+    <insert id="createOne" useGeneratedKeys="true" keyProperty="serviceId" keyColumn="srv_id">
+        INSERT INTO pagopa_ma_service
+        (
+            srv_id,
+            srv_service_code,
+            srv_service_description
+        )
+        VALUES
+        (
+            PAGOPA_SQ_SRV_ID.nextval,
+            #{service.serviceCode},
+            #{service.description}
+        )
+    </insert>
+
+    <select id="getOneById" resultMap="service">
+        SELECT * FROM pagopa_ma_service
+        WHERE srv_id = #{serviceId}
+        AND srv_is_deleted = 0
+    </select>
+
+    <select id="getOneByCode" resultMap="service">
+        SELECT * FROM pagopa_ma_service
+        WHERE srv_service_code = #{serviceCode}
+        AND srv_is_deleted = 0
+    </select>
+
+    <update id="updateOne">
+        UPDATE pagopa_ma_service
+        <set>
+            srv_updated_datetime = CURRENT_TIMESTAMP,
+            <if test="service.description != null and service.description != ''">
+                srv_service_description = #{service.description},
+            </if>
+        </set>
+        WHERE srv_id = #{serviceId}
+        AND srv_is_deleted = 0
+    </update>
+
+    <update id="deleteOneById">
+        UPDATE pagopa_ma_service
+        SET
+            srv_is_deleted = 1,
+            srv_deleted_datetime = CURRENT_TIMESTAMP
+        WHERE srv_id = #{serviceId}
+        AND srv_is_deleted = 0
+    </update>
+
+</mapper>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.bulk.BulkElementMapper">
+
+    <resultMap id="bulkElement" type="it.pagopa.bs.checkiban.model.persistence.BulkElement">
+        <result column="bue_bulk_request_id" property="bulkRequestId" />
+        <result column="bue_request_id" property="requestId" />
+        <result column="bue_batch_element_id" property="batchElementId" />
+        <result column="bue_request_json" property="requestJson" />
+        <result column="bue_response_json" property="responseJson" />
+        <result column="bue_element_status" property="elementStatus" />
+        <result column="bue_batch_element_connector" property="batchElementConnector" />
+        <result column="bue_inserted_datetime" property="insertedDatetime" />
+        <result column="bue_last_updated_datetime" property="lastUpdatedDatetime" />
+        <result column="bue_batch_psp_id" property="pspId" />
+    </resultMap>
+
+    <insert id="insertBulkElement">
+        INSERT INTO pagopa_tr_bulk_element
+        (
+            bue_bulk_request_id,
+            bue_request_id,
+            bue_request_json,
+            bue_response_json,
+            bue_element_status,
+            bue_inserted_datetime,
+            bue_last_updated_datetime,
+            bue_batch_psp_id
+        )
+        VALUES
+        (
+            #{bulkRequestId},
+            #{requestId},
+            #{requestJson},
+            #{responseJson},
+            #{elementStatus},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP,
+            #{pspId}
+        )
+    </insert> <!-- TODO: verify that the request is really not needed -->
+
+    <select id="getPendingByBulkRequestId" resultMap="bulkElement" fetchSize="1000" useCache="false">
+        SELECT *
+        FROM pagopa_tr_bulk_element be
+        WHERE be.bue_bulk_request_id = #{bulkRequestId}
+        AND be.bue_element_status = 'PENDING'
+    </select>
+
+    <select id="getPendingBatchByBulkRequestId" resultMap="bulkElement" fetchSize="1000" useCache="false">
+        SELECT *
+        FROM pagopa_tr_bulk_element be
+        WHERE be.bue_bulk_request_id = #{bulkRequestId}
+          AND be.bue_element_status = 'PENDING_BATCH'
+    </select>
+
+    <update id="setError">
+        UPDATE pagopa_tr_bulk_element be
+        <set>
+            be.bue_response_json = #{responseJson},
+            be.bue_element_status = 'ERROR',
+            be.bue_last_updated_datetime = CURRENT_TIMESTAMP
+        </set>
+        WHERE be.bue_request_id = #{requestId}
+    </update>
+
+    <update id="setSuccess">
+        UPDATE pagopa_tr_bulk_element be
+        <set>
+            be.bue_response_json = #{responseJson},
+            be.bue_element_status = 'SUCCESS',
+            be.bue_last_updated_datetime = CURRENT_TIMESTAMP
+        </set>
+        WHERE be.bue_request_id = #{requestId}
+    </update>
+
+    <update id="setDataAndPendingBatch">
+        UPDATE pagopa_tr_bulk_element be
+        <set>
+            be.bue_element_status = 'PENDING_BATCH',
+            be.bue_batch_element_id = #{bulkElement.batchElementId},
+            be.bue_batch_psp_id = #{bulkElement.pspId},
+            be.bue_batch_element_connector = #{bulkElement.batchElementConnector},
+            be.bue_response_json = #{bulkElement.responseJson},
+            be.bue_last_updated_datetime = CURRENT_TIMESTAMP
+        </set>
+        WHERE be.bue_request_id = #{requestId}
+    </update>
+
+    <update id="updateElementWithBatchResult">
+        UPDATE pagopa_tr_bulk_element be
+        <set>
+            be.bue_response_json = #{responseJson},
+            be.bue_element_status = 'SUCCESS',
+            be.bue_last_updated_datetime = CURRENT_TIMESTAMP
+        </set>
+        WHERE be.bue_request_id = #{requestId}
+    </update>
+    
+    <update id="setResponseRequestIdAndTimeout">
+        UPDATE pagopa_tr_bulk_element be
+        <set>
+            be.bue_response_json = #{responseJson},
+            be.bue_element_status = 'TIMEOUT',
+            be.bue_last_updated_datetime = CURRENT_TIMESTAMP
+        </set>
+        WHERE be.bue_request_id = #{requestId}
+    </update>
+
+    <select id="getPendingBatchIn" resultMap="bulkElement" fetchSize="1000" useCache="false">
+        SELECT be.bue_bulk_request_id, be.bue_request_id, be.bue_batch_element_id, be.bue_request_json
+        FROM pagopa_tr_bulk_element be
+        WHERE (1, be.bue_bulk_request_id) IN
+        <foreach collection="bulkRegistryIds" item="bulkRegistryId" open="(" separator="," close=")">
+            (1, #{bulkRegistryId})
+        </foreach>
+        AND be.bue_element_status = 'PENDING_BATCH'
+    </select>
+
+    <select id="getAllByBulkRequestId" resultMap="bulkElement" fetchSize="1000" useCache="false">
+        SELECT *
+        FROM pagopa_tr_bulk_element be
+        WHERE be.bue_bulk_request_id = #{bulkRequestId}
+        AND (be.bue_element_status = 'PENDING_BATCH' OR be.bue_element_status = 'PENDING')
+    </select>
+
+</mapper>

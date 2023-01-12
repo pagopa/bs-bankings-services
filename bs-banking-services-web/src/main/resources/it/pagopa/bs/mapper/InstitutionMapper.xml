@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.InstitutionMapper">
+
+    <resultMap id="institution" type="it.pagopa.bs.checkiban.model.persistence.Institution">
+        <id column="ins_id" property="institutionId" />
+        <result column="ins_code" property="institutionCode" />
+        <result column="ins_name" property="name" />
+        <result column="ins_cdc_code" property="cdcCode" />
+        <result column="ins_cdc_description" property="cdcDescription" />
+        <result column="ins_credential_id" property="credentialId" />
+        <result column="ins_fiscal_code" property="fiscalCode" />
+        <result column="ins_created_datetime" property="createdDatetime" />
+        <result column="ins_updated_datetime" property="updatedDatetime" />
+    </resultMap>
+
+    <select id="search" resultMap="institution">
+        SELECT * FROM pagopa_ma_institution
+        <where>
+            ins_is_deleted = 0
+            <if test="filter.name != null and filter.name != ''">
+                AND UPPER(ins_name) LIKE UPPER('%' || #{filter.name} || '%')
+            </if>
+            <if test="filter.institutionCode != null and filter.institutionCode != ''">
+                AND ins_code = #{filter.institutionCode}
+            </if>
+            <if test="filter.cdcCode != null and filter.cdcCode != ''">
+                AND ins_cdc_code = #{filter.cdcCode}
+            </if>
+            <if test="filter.credentialId != null and filter.credentialId != ''">
+                AND ins_credential_id = #{filter.credentialId}
+            </if>
+            <if test="filter.fiscalCode != null and filter.fiscalCode != ''">
+                AND UPPER(ins_fiscal_code) = UPPER(#{filter.fiscalCode})
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(ins_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+            AND UPPER(ins_name) != 'TEST'
+        </where>
+        ORDER BY ins_id ASC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="searchCount" resultType="int">
+        SELECT COUNT(*) FROM pagopa_ma_institution
+        <where>
+            ins_is_deleted = 0
+            <if test="filter.name != null and filter.name != ''">
+                AND UPPER(ins_name) LIKE UPPER('%' || #{filter.name} || '%')
+            </if>
+            <if test="filter.institutionCode != null and filter.institutionCode != ''">
+                AND ins_code = #{filter.institutionCode}
+            </if>
+            <if test="filter.cdcCode != null and filter.cdcCode != ''">
+                AND ins_cdc_code = #{filter.cdcCode}
+            </if>
+            <if test="filter.credentialId != null and filter.credentialId != ''">
+                AND ins_credential_id = #{filter.credentialId}
+            </if>
+            <if test="filter.fiscalCode != null and filter.fiscalCode != ''">
+                AND UPPER(ins_fiscal_code) = UPPER(#{filter.fiscalCode})
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(ins_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+            AND UPPER(ins_name) != 'TEST'
+        </where>
+    </select>
+
+    <select id="getOneByCredentialId" resultMap="institution">
+        SELECT * FROM pagopa_ma_institution
+        WHERE ins_credential_id = #{credentialId}
+        AND ins_is_deleted = 0
+    </select>
+
+    <insert id="createOne" useGeneratedKeys="true" keyProperty="institutionId" keyColumn="ins_id">
+        INSERT INTO pagopa_ma_institution
+        (
+            ins_id,
+            ins_code,
+            ins_name,
+            ins_cdc_code,
+            ins_cdc_description,
+            ins_credential_id,
+            ins_fiscal_code
+        )
+        VALUES
+        (
+            PAGOPA_SQ_INS_ID.nextval,
+            #{institution.institutionCode},
+            #{institution.name},
+            #{institution.cdcCode},
+            #{institution.cdcDescription},
+            #{institution.credentialId},
+            #{institution.fiscalCode}
+        )
+    </insert>
+
+    <select id="getOneById" resultMap="institution">
+        SELECT * FROM pagopa_ma_institution
+        WHERE ins_id = #{institutionId}
+        AND ins_is_deleted = 0
+    </select>
+
+    <update id="updateOne">
+        UPDATE pagopa_ma_institution
+        <set>
+            ins_updated_datetime = CURRENT_TIMESTAMP,
+            <if test="institution.name != null and institution.name != ''">
+                ins_name = #{institution.name},
+            </if>
+            <if test="institution.cdcCode != null and institution.cdcCode != ''">
+                ins_cdc_code = #{institution.cdcCode},
+            </if>
+            <if test="institution.cdcDescription != null and institution.cdcDescription != ''">
+                ins_cdc_description = #{institution.cdcDescription},
+            </if>
+            <if test="institution.credentialId != null and institution.credentialId != ''">
+                ins_credential_id = #{institution.credentialId},
+            </if>
+            <if test="institution.fiscalCode != null and institution.fiscalCode != ''">
+                ins_fiscal_code = #{institution.fiscalCode}
+            </if>
+        </set>
+        WHERE ins_id = #{institutionId}
+        AND ins_is_deleted = 0
+    </update>
+
+    <update id="deleteOneById">
+        UPDATE pagopa_ma_institution
+        SET
+            ins_is_deleted = 1,
+            ins_deleted_datetime = CURRENT_TIMESTAMP
+        WHERE ins_id = #{institutionId}
+        AND ins_is_deleted = 0
+    </update>
+
+</mapper>

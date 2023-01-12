@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.ServiceBindingMapper">
+
+    <resultMap id="serviceBinding" type="it.pagopa.bs.checkiban.model.persistence.ServiceBinding">
+        <id column="sbi_id" property="serviceBindingId" />
+        <result column="sbi_validity_started_datetime" property="validityStartedDatetime" />
+        <result column="sbi_validity_ended_datetime" property="validityEndedDatetime" />
+
+        <association
+                column="sbi_entity_id"
+                property="psp"
+                javaType="it.pagopa.bs.checkiban.model.persistence.Psp"
+                resultMap="it.pagopa.bs.web.mapper.PspMapper.psp"
+        />
+
+        <association
+                column="sbi_south_config_id"
+                property="southConfig"
+                javaType="it.pagopa.bs.checkiban.model.persistence.SouthConfig"
+                resultMap="it.pagopa.bs.web.mapper.SouthConfigMapper.config"
+        />
+
+        <association
+                column="sbi_service_id"
+                property="service"
+                javaType="it.pagopa.bs.checkiban.model.persistence.PagoPaService"
+                resultMap="it.pagopa.bs.web.mapper.ServiceMapper.service"
+        />
+    </resultMap>
+
+    <select id="searchPspServiceBinding" resultMap="serviceBinding">
+        SELECT *
+        FROM pagopa_ma_service_binding
+             JOIN pagopa_ma_service ON srv_id = sbi_service_id
+             JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+             JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+             JOIN pagopa_ma_psp ON psp_id = en_id
+        <where>
+            <if test="filter.includeHistory == false">
+                AND sbi_validity_ended_datetime IS NULL
+                AND srv_is_deleted = 0
+                AND scf_is_deleted = 0
+                AND en_is_deleted = 0
+                AND psp_deleted_datetime_mirror IS NULL
+            </if>
+            <if test="filter.psp != null">
+                <if test="filter.psp.name != null and filter.psp.name != ''">
+                    AND UPPER(en_name) LIKE UPPER('%' || #{filter.psp.name} || '%')
+                </if>
+                <if test="filter.psp.supportEmail != null and filter.psp.supportEmail != ''">
+                    AND en_support_email = #{filter.psp.supportEmail}
+                </if>
+                <if test="filter.psp.nationalCode != null and filter.psp.nationalCode != ''">
+                    AND psp_national_code = #{filter.psp.nationalCode}
+                </if>
+                <if test="filter.psp.countryCode != null">
+                    AND psp_country_code = #{filter.psp.countryCode}
+                </if>
+                <if test="filter.psp.bicCode != null and filter.psp.bicCode != ''">
+                    AND psp_bic_code = #{filter.psp.bicCode}
+                </if>
+                <if test="filter.psp.blacklisted != null and filter.psp.blacklisted != ''">
+                    AND psp_is_blacklisted = #{filter.psp.blacklisted}
+                </if>
+                <if test="filter.psp.accountValueType != null">
+                    AND psp_account_value_type = #{filter.psp.accountValueType}
+                </if>
+                <if test="filter.psp.createdStartDatetime != null and filter.psp.createdEndDatetime != null">
+                    AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.psp.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.psp.createdEndDatetime})
+                </if>
+            </if>
+            <if test="filter.service != null">
+                <if test="filter.service.serviceCode != null">
+                    AND srv_service_code = #{filter.service.serviceCode}
+                </if>
+                <if test="filter.service.createdStartDatetime != null and filter.service.createdEndDatetime != null">
+                    AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.service.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.service.createdEndDatetime})
+                </if>
+            </if>
+            <if test="filter.southConfig != null">
+                <if test="filter.southConfig.southConfigCode != null and filter.southConfig.southConfigCode != ''">
+                    AND scf_code = #{filter.southConfig.southConfigCode}
+                </if>
+                <if test="filter.southConfig.connectorName != null and filter.southConfig.connectorName != ''">
+                    AND scf_connector_name = #{filter.southConfig.connectorName}
+                </if>
+                <if test="filter.southConfig.connectorType != null">
+                    AND scf_connector_type = #{filter.southConfig.connectorType}
+                </if>
+                <if test="filter.southConfig.createdStartDatetime != null and filter.southConfig.createdEndDatetime != null">
+                    AND TO_TIMESTAMP_TZ(SUBSTR(scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.southConfig.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.southConfig.createdEndDatetime})
+                </if>
+                <if test="filter.validityStartedFromDatetime != null and filter.validityStartedToDatetime != null">
+                    AND TO_TIMESTAMP_TZ(SUBSTR(sbi_validity_started_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.validityStartedFromDatetime}) AND TO_TIMESTAMP_TZ(#{filter.validityStartedToDatetime})
+                </if>
+            </if>
+        </where>
+        ORDER BY sbi_id ASC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="searchPspServiceBindingCount" resultType="int">
+        SELECT COUNT(*)
+        FROM pagopa_ma_service_binding
+             JOIN pagopa_ma_service ON srv_id = sbi_service_id
+             JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+             JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+             JOIN pagopa_ma_psp ON psp_id = en_id
+        <where>
+            <if test="filter.includeHistory == false">
+                AND sbi_validity_ended_datetime IS NULL
+                AND srv_is_deleted = 0
+                AND scf_is_deleted = 0
+                AND en_is_deleted = 0
+                AND psp_deleted_datetime_mirror IS NULL
+            </if>
+            <if test="filter.psp != null">
+                <if test="filter.psp.name != null and filter.psp.name != ''">
+                    AND UPPER(en_name) LIKE UPPER('%' || #{filter.psp.name} || '%')
+                </if>
+                <if test="filter.psp.supportEmail != null and filter.psp.supportEmail != ''">
+                    AND en_support_email = #{filter.psp.supportEmail}
+                </if>
+                <if test="filter.psp.nationalCode != null and filter.psp.nationalCode != ''">
+                    AND psp_national_code = #{filter.psp.nationalCode}
+                </if>
+                <if test="filter.psp.countryCode != null">
+                    AND psp_country_code = #{filter.psp.countryCode}
+                </if>
+                <if test="filter.psp.bicCode != null and filter.psp.bicCode != ''">
+                    AND psp_bic_code = #{filter.psp.bicCode}
+                </if>
+                <if test="filter.psp.blacklisted != null and filter.psp.blacklisted != ''">
+                    AND psp_is_blacklisted = #{filter.psp.blacklisted}
+                </if>
+                <if test="filter.psp.accountValueType != null">
+                    AND psp_account_value_type = #{filter.psp.accountValueType}
+                </if>
+                <if test="filter.psp.createdStartDatetime != null and filter.psp.createdEndDatetime != null">
+                    AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.psp.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.psp.createdEndDatetime})
+                </if>
+            </if>
+            <if test="filter.service != null">
+                <if test="filter.service.serviceCode != null">
+                    AND srv_service_code = #{filter.service.serviceCode}
+                </if>
+                <if test="filter.service.createdStartDatetime != null and filter.service.createdEndDatetime != null">
+                    AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.service.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.service.createdEndDatetime})
+                </if>
+            </if>
+            <if test="filter.southConfig != null">
+                <if test="filter.southConfig.southConfigCode != null and filter.southConfig.southConfigCode != ''">
+                    AND scf_code = #{filter.southConfig.southConfigCode}
+                </if>
+                <if test="filter.southConfig.connectorName != null and filter.southConfig.connectorName != ''">
+                    AND scf_connector_name = #{filter.southConfig.connectorName}
+                </if>
+                <if test="filter.southConfig.connectorType != null">
+                    AND scf_connector_type = #{filter.southConfig.connectorType}
+                </if>
+                <if test="filter.southConfig.createdStartDatetime != null and filter.southConfig.createdEndDatetime != null">
+                    AND TO_TIMESTAMP_TZ(SUBSTR(scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.southConfig.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.southConfig.createdEndDatetime})
+                </if>
+                <if test="filter.validityStartedFromDatetime != null and filter.validityStartedToDatetime != null">
+                    AND TO_TIMESTAMP_TZ(SUBSTR(sbi_validity_started_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.validityStartedFromDatetime}) AND TO_TIMESTAMP_TZ(#{filter.validityStartedToDatetime})
+                </if>
+            </if>
+        </where>
+        ORDER BY sbi_validity_started_datetime DESC
+    </select>
+
+    <insert id="bindService" useGeneratedKeys="true" keyProperty="serviceBindingId" keyColumn="sbi_id">
+        INSERT INTO pagopa_ma_service_binding
+        (
+            sbi_id,
+            sbi_validity_started_datetime,
+            sbi_entity_id,
+            sbi_south_config_id,
+            sbi_service_id
+        )
+        VALUES
+        (
+            PAGOPA_SQ_SBI_ID.nextval,
+            CURRENT_TIMESTAMP,
+            #{serviceBinding.psp.pspId},
+            #{serviceBinding.southConfig.southConfigId},
+            #{serviceBinding.service.serviceId}
+        )
+    </insert>
+
+    <update id="unbindService">
+        UPDATE pagopa_ma_service_binding
+        SET sbi_validity_ended_datetime = CURRENT_TIMESTAMP
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND sbi_entity_id = #{entityId}
+        AND sbi_south_config_id = #{southConfigId}
+        AND sbi_service_id = #{serviceId}
+    </update>
+
+    <update id="unbindServiceById">
+        UPDATE pagopa_ma_service_binding
+        SET sbi_validity_ended_datetime = CURRENT_TIMESTAMP
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND sbi_id = #{serviceBindingId}
+    </update>
+
+    <update id="unbindAllByPspId">
+        UPDATE pagopa_ma_service_binding
+        SET sbi_validity_ended_datetime = CURRENT_TIMESTAMP
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND sbi_entity_id = #{pspId}
+    </update>
+
+    <update id="unbindAllByServiceId">
+        UPDATE pagopa_ma_service_binding
+        SET sbi_validity_ended_datetime = CURRENT_TIMESTAMP
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND sbi_service_id = #{serviceId}
+    </update>
+
+    <update id="unbindAllBySouthConfigId">
+        UPDATE pagopa_ma_service_binding
+        SET sbi_validity_ended_datetime = CURRENT_TIMESTAMP
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND sbi_south_config_id = #{southConfigId}
+    </update>
+
+    <select id="getOneById" resultMap="serviceBinding">
+        SELECT *
+        FROM pagopa_ma_service_binding
+             JOIN pagopa_ma_service ON srv_id = sbi_service_id
+             JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+             JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+             JOIN pagopa_ma_psp ON psp_id = en_id
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND srv_is_deleted = 0
+        AND scf_is_deleted = 0
+        AND en_is_deleted = 0
+        AND psp_deleted_datetime_mirror IS NULL
+        AND sbi_id = #{serviceBindingId}
+    </select>
+
+    <select id="getOneByIdIncludeEnded" resultMap="serviceBinding">
+        SELECT *
+        FROM pagopa_ma_service_binding
+             JOIN pagopa_ma_service ON srv_id = sbi_service_id
+             JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+             JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+             JOIN pagopa_ma_psp ON psp_id = en_id
+        AND srv_is_deleted = 0
+        AND scf_is_deleted = 0
+        AND en_is_deleted = 0
+        AND psp_deleted_datetime_mirror IS NULL
+        AND sbi_id = #{serviceBindingId}
+    </select>
+
+    <select id="getOneByEntityIdAndServiceCodeAndSouthConfigCode" resultMap="serviceBinding">
+        SELECT *
+        FROM pagopa_ma_service_binding
+             JOIN pagopa_ma_service ON srv_id = sbi_service_id
+             JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+             JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+             JOIN pagopa_ma_psp ON psp_id = en_id
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND srv_is_deleted = 0
+        AND scf_is_deleted = 0
+        AND en_is_deleted = 0
+        AND psp_deleted_datetime_mirror IS NULL
+        AND en_id = #{entityId}
+        AND srv_service_code = #{serviceCode}
+        AND scf_code = #{southConfigCode}
+    </select>
+
+    <select id="getOneByEntityIdAndServiceCode" resultMap="serviceBinding">
+        SELECT *
+        FROM pagopa_ma_service_binding
+            JOIN pagopa_ma_service ON srv_id = sbi_service_id
+            JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+            JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+            JOIN pagopa_ma_psp ON psp_id = en_id
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND srv_is_deleted = 0
+        AND scf_is_deleted = 0
+        AND en_is_deleted = 0
+        AND psp_deleted_datetime_mirror IS NULL
+        AND en_id = #{entityId}
+        AND srv_service_code = #{serviceCode}
+    </select>
+
+    <select id="getAllByBindingByServiceCodeAndConnectorType" resultMap="serviceBinding">
+        SELECT *
+        FROM pagopa_ma_service_binding
+             JOIN pagopa_ma_service ON srv_id = sbi_service_id
+             JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+             JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+             JOIN pagopa_ma_psp ON psp_id = en_id
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND srv_service_code = #{serviceCode}
+        AND scf_connector_type = #{connectorType}
+        AND srv_is_deleted = 0
+        AND scf_is_deleted = 0
+        AND psp_deleted_datetime_mirror IS NULL
+    </select>
+
+    <select id="getAllConfigsByServiceCodeAndConnectorType" resultMap="it.fabrick.pagopaconnector.web.mapper.SouthConfigMapper.config">
+        SELECT *
+        FROM pagopa_ma_south_config
+        WHERE scf_id IN
+        (
+            SELECT DISTINCT t3.scf_id
+            FROM pagopa_ma_service_binding t1
+                JOIN pagopa_ma_service t2 ON t2.srv_id = t1.sbi_service_id
+                JOIN pagopa_ma_south_config t3 ON t3.scf_id = t1.sbi_south_config_id
+            WHERE t1.sbi_validity_ended_datetime IS NULL
+            AND t2.srv_service_code = #{serviceCode}
+            AND t3.scf_connector_type = #{connectorType}
+            AND t2.srv_is_deleted = 0
+            AND t3.scf_is_deleted = 0
+        )
+    </select>
+
+    <select id="getConfigByServiceCodeAndConnectorTypeAndConnectorName" resultMap="it.fabrick.pagopaconnector.web.mapper.SouthConfigMapper.config">
+        SELECT *
+        FROM pagopa_ma_south_config
+        WHERE scf_id IN
+        (
+            SELECT DISTINCT t3.scf_id
+            FROM pagopa_ma_service_binding t1
+                JOIN pagopa_ma_service t2 ON t2.srv_id = t1.sbi_service_id
+                JOIN pagopa_ma_south_config t3 ON t3.scf_id = t1.sbi_south_config_id
+            WHERE t1.sbi_validity_ended_datetime IS NULL
+            AND t2.srv_service_code = #{serviceCode}
+            AND t3.scf_connector_type = #{connectorType}
+            AND scf_connector_name = #{connectorName}
+            AND t2.srv_is_deleted = 0
+            AND t3.scf_is_deleted = 0
+        )
+    </select>
+
+    <select id="getOneByBindingByServiceCodeAndConnectorTypeAndNationalCode" resultMap="serviceBinding">
+        SELECT *
+        FROM pagopa_ma_service_binding
+            JOIN pagopa_ma_service ON srv_id = sbi_service_id
+            JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+            JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+            JOIN pagopa_ma_psp ON psp_id = en_id
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND psp_national_code = #{nationalCode}
+        AND psp_country_code = 'IT'
+        AND srv_service_code = #{serviceCode}
+        AND scf_connector_type = #{connectorType}
+        AND srv_is_deleted = 0
+        AND scf_is_deleted = 0
+        AND psp_deleted_datetime_mirror IS NULL
+    </select>
+
+    <select id="getBindingByServiceCodeAndConnectorTypeAndNationalCodeAndCountryCode" resultMap="serviceBinding">
+        SELECT *
+        FROM pagopa_ma_service_binding
+            JOIN pagopa_ma_service ON srv_id = sbi_service_id
+            JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
+            JOIN pagopa_ma_entity ON en_id = sbi_entity_id
+            JOIN pagopa_ma_psp ON psp_id = en_id
+        WHERE sbi_validity_ended_datetime IS NULL
+        AND srv_service_code = #{serviceCode}
+        AND psp_national_code = #{nationalCode}
+        AND psp_country_code = #{countryCode}
+        AND scf_connector_type = #{connectorType}
+        AND srv_is_deleted = 0
+        AND scf_is_deleted = 0
+        AND psp_deleted_datetime_mirror IS NULL
+    </select>
+
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.PspMapper">
+
+    <resultMap id="psp" type="it.pagopa.bs.checkiban.model.persistence.Psp">
+        <id column="psp_id" property="pspId" />
+        <result column="en_name" property="name" />
+        <result column="en_type" property="type" />
+        <result column="en_support_email" property="supportEmail" />
+        <result column="en_created_datetime" property="createdDatetime" />
+        <result column="en_updated_datetime" property="updatedDatetime" />
+        <result column="psp_national_code" property="nationalCode" />
+        <result column="psp_country_code" property="countryCode" />
+        <result column="psp_bic_code" property="bicCode" />
+        <result column="psp_account_value_type" property="accountValueType" />
+        <result column="psp_is_blacklisted" property="blacklisted" />
+    </resultMap>
+
+    <select id="search" resultMap="psp">
+        SELECT *
+        FROM pagopa_ma_entity
+        JOIN pagopa_ma_psp ON en_id = psp_id
+        <where>
+            en_is_deleted = 0
+            <if test="filter.name != null and filter.name != ''">
+                AND UPPER(en_name) LIKE UPPER('%' || #{filter.name} || '%')
+            </if>
+            <if test="filter.supportEmail != null and filter.supportEmail != ''">
+                AND en_support_email = #{filter.supportEmail}
+            </if>
+            <if test="filter.nationalCode != null and filter.nationalCode != ''">
+                AND psp_national_code = #{filter.nationalCode}
+            </if>
+            <if test="filter.countryCode != null">
+                AND psp_country_code = #{filter.countryCode}
+            </if>
+            <if test="filter.bicCode != null and filter.bicCode != ''">
+                AND psp_bic_code = #{filter.bicCode}
+            </if>
+            <if test="filter.blacklisted != null and filter.blacklisted != ''">
+                AND psp_is_blacklisted = #{filter.blacklisted}
+            </if>
+            <if test="filter.accountValueType != null">
+                AND psp_account_value_type = #{filter.accountValueType}
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+        </where>
+        ORDER BY psp_id ASC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="searchCount" resultType="int">
+        SELECT COUNT(*)
+        FROM pagopa_ma_entity
+        JOIN pagopa_ma_psp ON en_id = psp_id
+        <where>
+            en_is_deleted = 0
+            <if test="filter.name != null and filter.name != ''">
+                AND UPPER(en_name) LIKE UPPER('%' || #{filter.name} || '%')
+            </if>
+            <if test="filter.supportEmail != null and filter.supportEmail != ''">
+                AND en_support_email = #{filter.supportEmail}
+            </if>
+            <if test="filter.nationalCode != null and filter.nationalCode != ''">
+                AND psp_national_code = #{filter.nationalCode}
+            </if>
+            <if test="filter.countryCode != null">
+                AND psp_country_code = #{filter.countryCode}
+            </if>
+            <if test="filter.bicCode != null and filter.bicCode != ''">
+                AND psp_bic_code = #{filter.bicCode}
+            </if>
+            <if test="filter.blacklisted != null and filter.blacklisted != ''">
+                AND psp_is_blacklisted = #{filter.blacklisted}
+            </if>
+            <if test="filter.accountValueType != null">
+                AND psp_account_value_type = #{filter.accountValueType}
+            </if>
+        </where>
+    </select>
+
+    <select id="getOneById" resultMap="psp">
+        SELECT * FROM pagopa_ma_entity
+        JOIN pagopa_ma_psp ON en_id = psp_id
+        WHERE psp_id = #{pspId}
+        AND en_is_deleted = 0
+    </select>
+
+    <select id="getOneByIdAlsoDeleted" resultMap="psp">
+        SELECT * FROM pagopa_ma_entity
+         JOIN pagopa_ma_psp ON en_id = psp_id
+        WHERE psp_id = #{pspId}
+    </select>
+
+    <select id="getOneByNationalAndCountryCode" resultMap="psp">
+        SELECT * FROM pagopa_ma_entity
+        JOIN pagopa_ma_psp ON en_id = psp_id
+        WHERE psp_national_code = #{nationalCode}
+        AND psp_country_code = #{countryCode}
+        AND en_is_deleted = 0
+    </select>
+
+    <insert id="createOne" useGeneratedKeys="true" keyProperty="pspId" keyColumn="psp_id">
+        INSERT INTO pagopa_ma_psp
+        (
+            psp_id,
+            psp_is_blacklisted,
+            psp_national_code,
+            psp_country_code,
+            psp_bic_code,
+            psp_account_value_type
+        )
+        VALUES
+        (
+            #{psp.pspId},
+            #{psp.blacklisted},
+            #{psp.nationalCode},
+            #{psp.countryCode},
+            #{psp.bicCode},
+            #{psp.accountValueType}
+        )
+    </insert>
+
+    <update id="updateOne">
+        UPDATE pagopa_ma_psp
+        <set>
+            psp_id = psp_id,
+            <if test="psp.blacklisted != null and psp.blacklisted != ''">
+                psp_is_blacklisted = #{psp.blacklisted},
+            </if>
+            <if test="psp.nationalCode != null and psp.nationalCode != ''">
+                psp_national_code = #{psp.nationalCode},
+            </if>
+            <if test="psp.countryCode != null">
+                psp_country_code = #{psp.countryCode},
+            </if>
+            <if test="psp.bicCode != null and psp.bicCode != ''">
+                psp_bic_code = #{psp.bicCode},
+            </if>
+            <if test="psp.accountValueType != null">
+                psp_account_value_type = #{psp.accountValueType}
+            </if>
+        </set>
+        WHERE psp_id = #{pspId}
+        AND psp_deleted_datetime_mirror IS NULL
+    </update>
+
+    <update id="deleteOneById">
+        UPDATE pagopa_ma_psp
+        SET
+            psp_deleted_datetime_mirror = #{entityDeletedDatetime}
+        WHERE psp_id = #{pspId}
+        AND psp_deleted_datetime_mirror IS NULL
+    </update>
+
+</mapper>
