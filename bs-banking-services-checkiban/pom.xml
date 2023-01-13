@@ -21,6 +21,13 @@
             <version>0.0.1</version>
         </dependency>
 
+        <!-- IBAN validation -->
+        <dependency>
+            <groupId>nl.garvelink.oss</groupId>
+            <artifactId>iban</artifactId>
+            <version>1.13.0</version>
+        </dependency>
+
     </dependencies>
 
 </project>
