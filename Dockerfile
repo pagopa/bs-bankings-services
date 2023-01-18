@@ -17,4 +17,4 @@ ARG JAR_FILE=bs-banking-services-web/target/*.jar
 COPY --from=build ${APP_FOLDER}/${JAR_FILE} bs.jar
 EXPOSE 5005:5005
 EXPOSE 8080:8080
-ENTRYPOINT ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005", "-jar", "/bs.jar"]
+ENTRYPOINT ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005", "-jar", "/bs.jar"] # includes debug agent attach
