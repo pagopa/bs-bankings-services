@@ -15,7 +15,7 @@
         <where>
             srv_is_deleted = 0
             <if test="filter.serviceCode != null">
-                AND srv_service_code = #{filter.serviceCode}
+                AND UPPER(srv_service_code) LIKE UPPER('%' || #{filter.serviceCode} || '%')
             </if>
             <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
                 AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
@@ -31,7 +31,7 @@
         <where>
             srv_is_deleted = 0
             <if test="filter.serviceCode != null">
-                AND srv_service_code = #{filter.serviceCode}
+                AND UPPER(srv_service_code) LIKE UPPER('%' || #{filter.serviceCode} || '%')
             </if>
             <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
                 AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})

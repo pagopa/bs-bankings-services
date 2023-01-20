@@ -49,22 +49,22 @@
                     AND UPPER(en_name) LIKE UPPER('%' || #{filter.psp.name} || '%')
                 </if>
                 <if test="filter.psp.supportEmail != null and filter.psp.supportEmail != ''">
-                    AND en_support_email = #{filter.psp.supportEmail}
+                    AND UPPER(en_support_email) LIKE UPPER('%' || #{filter.psp.supportEmail} || '%')
                 </if>
                 <if test="filter.psp.nationalCode != null and filter.psp.nationalCode != ''">
-                    AND psp_national_code = #{filter.psp.nationalCode}
+                    AND UPPER(psp_national_code) LIKE UPPER('%' || #{filter.psp.nationalCode} || '%')
                 </if>
                 <if test="filter.psp.countryCode != null">
-                    AND psp_country_code = #{filter.psp.countryCode}
+                    AND UPPER(psp_country_code) LIKE UPPER('%' || #{filter.psp.countryCode} || '%')
                 </if>
                 <if test="filter.psp.bicCode != null and filter.psp.bicCode != ''">
-                    AND psp_bic_code = #{filter.psp.bicCode}
+                    AND UPPER(psp_bic_code) LIKE UPPER('%' || #{filter.psp.bicCode} || '%')
                 </if>
                 <if test="filter.psp.blacklisted != null and filter.psp.blacklisted != ''">
                     AND psp_is_blacklisted = #{filter.psp.blacklisted}
                 </if>
                 <if test="filter.psp.accountValueType != null">
-                    AND psp_account_value_type = #{filter.psp.accountValueType}
+                    AND UPPER(psp_account_value_type) LIKE UPPER('%' || #{filter.psp.accountValueType} || '%')
                 </if>
                 <if test="filter.psp.createdStartDatetime != null and filter.psp.createdEndDatetime != null">
                     AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.psp.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.psp.createdEndDatetime})
@@ -72,7 +72,7 @@
             </if>
             <if test="filter.service != null">
                 <if test="filter.service.serviceCode != null">
-                    AND srv_service_code = #{filter.service.serviceCode}
+                    AND UPPER(srv_service_code) LIKE UPPER('%' || #{filter.service.serviceCode} || '%')
                 </if>
                 <if test="filter.service.createdStartDatetime != null and filter.service.createdEndDatetime != null">
                     AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.service.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.service.createdEndDatetime})
@@ -80,13 +80,13 @@
             </if>
             <if test="filter.southConfig != null">
                 <if test="filter.southConfig.southConfigCode != null and filter.southConfig.southConfigCode != ''">
-                    AND scf_code = #{filter.southConfig.southConfigCode}
+                    AND UPPER(scf_code) LIKE UPPER('%' || #{filter.southConfig.southConfigCode} || '%')
                 </if>
                 <if test="filter.southConfig.connectorName != null and filter.southConfig.connectorName != ''">
-                    AND scf_connector_name = #{filter.southConfig.connectorName}
+                    AND UPPER(scf_connector_name) LIKE UPPER('%' || #{filter.southConfig.connectorName} || '%')
                 </if>
                 <if test="filter.southConfig.connectorType != null">
-                    AND scf_connector_type = #{filter.southConfig.connectorType}
+                    AND UPPER(scf_connector_type) LIKE UPPER('%' || #{filter.southConfig.connectorType} || '%')
                 </if>
                 <if test="filter.southConfig.createdStartDatetime != null and filter.southConfig.createdEndDatetime != null">
                     AND TO_TIMESTAMP_TZ(SUBSTR(scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.southConfig.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.southConfig.createdEndDatetime})
@@ -121,22 +121,22 @@
                     AND UPPER(en_name) LIKE UPPER('%' || #{filter.psp.name} || '%')
                 </if>
                 <if test="filter.psp.supportEmail != null and filter.psp.supportEmail != ''">
-                    AND en_support_email = #{filter.psp.supportEmail}
+                    AND UPPER(en_support_email) LIKE UPPER('%' || #{filter.psp.supportEmail} || '%')
                 </if>
                 <if test="filter.psp.nationalCode != null and filter.psp.nationalCode != ''">
-                    AND psp_national_code = #{filter.psp.nationalCode}
+                    AND UPPER(psp_national_code) LIKE UPPER('%' || #{filter.psp.nationalCode} || '%')
                 </if>
                 <if test="filter.psp.countryCode != null">
-                    AND psp_country_code = #{filter.psp.countryCode}
+                    AND UPPER(psp_country_code) LIKE UPPER('%' || #{filter.psp.countryCode} || '%')
                 </if>
                 <if test="filter.psp.bicCode != null and filter.psp.bicCode != ''">
-                    AND psp_bic_code = #{filter.psp.bicCode}
+                    AND UPPER(psp_bic_code) LIKE UPPER('%' || #{filter.psp.bicCode} || '%')
                 </if>
                 <if test="filter.psp.blacklisted != null and filter.psp.blacklisted != ''">
                     AND psp_is_blacklisted = #{filter.psp.blacklisted}
                 </if>
                 <if test="filter.psp.accountValueType != null">
-                    AND psp_account_value_type = #{filter.psp.accountValueType}
+                    AND UPPER(psp_account_value_type) LIKE UPPER('%' || #{filter.psp.accountValueType} || '%')
                 </if>
                 <if test="filter.psp.createdStartDatetime != null and filter.psp.createdEndDatetime != null">
                     AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.psp.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.psp.createdEndDatetime})
@@ -144,7 +144,7 @@
             </if>
             <if test="filter.service != null">
                 <if test="filter.service.serviceCode != null">
-                    AND srv_service_code = #{filter.service.serviceCode}
+                    AND UPPER(srv_service_code) LIKE UPPER('%' || #{filter.service.serviceCode} || '%')
                 </if>
                 <if test="filter.service.createdStartDatetime != null and filter.service.createdEndDatetime != null">
                     AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.service.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.service.createdEndDatetime})
@@ -152,13 +152,13 @@
             </if>
             <if test="filter.southConfig != null">
                 <if test="filter.southConfig.southConfigCode != null and filter.southConfig.southConfigCode != ''">
-                    AND scf_code = #{filter.southConfig.southConfigCode}
+                    AND UPPER(scf_code) LIKE UPPER('%' || #{filter.southConfig.southConfigCode} || '%')
                 </if>
                 <if test="filter.southConfig.connectorName != null and filter.southConfig.connectorName != ''">
-                    AND scf_connector_name = #{filter.southConfig.connectorName}
+                    AND UPPER(scf_connector_name) LIKE UPPER('%' || #{filter.southConfig.connectorName} || '%')
                 </if>
                 <if test="filter.southConfig.connectorType != null">
-                    AND scf_connector_type = #{filter.southConfig.connectorType}
+                    AND UPPER(scf_connector_type) LIKE UPPER('%' || #{filter.southConfig.connectorType} || '%')
                 </if>
                 <if test="filter.southConfig.createdStartDatetime != null and filter.southConfig.createdEndDatetime != null">
                     AND TO_TIMESTAMP_TZ(SUBSTR(scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.southConfig.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.southConfig.createdEndDatetime})
@@ -304,7 +304,7 @@
         AND psp_deleted_datetime_mirror IS NULL
     </select>
 
-    <select id="getAllConfigsByServiceCodeAndConnectorType" resultMap="it.pagopa.bs.web.mapper.SouthConfigMapper.config">
+    <select id="getAllConfigsByServiceCodeAndConnectorType" resultMap="it.fabrick.pagopaconnector.web.mapper.SouthConfigMapper.config">
         SELECT *
         FROM pagopa_ma_south_config
         WHERE scf_id IN
@@ -321,7 +321,7 @@
         )
     </select>
 
-    <select id="getConfigByServiceCodeAndConnectorTypeAndConnectorName" resultMap="it.pagopa.bs.web.mapper.SouthConfigMapper.config">
+    <select id="getConfigByServiceCodeAndConnectorTypeAndConnectorName" resultMap="it.fabrick.pagopaconnector.web.mapper.SouthConfigMapper.config">
         SELECT *
         FROM pagopa_ma_south_config
         WHERE scf_id IN

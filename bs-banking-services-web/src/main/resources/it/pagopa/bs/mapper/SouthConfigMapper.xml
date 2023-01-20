@@ -20,16 +20,16 @@
             AND sc.scf_is_deleted = 0
             AND sc.scf_connector_type = 'PSP_API_STANDARD'
             <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
-                AND sc.scf_code = #{filter.southConfigCode}
+                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
             </if>
             <if test="filter.connectorName != null and filter.connectorName != ''">
-                AND sc.scf_connector_name = #{filter.connectorName}
+                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
             </if>
             <if test="filter.modelVersion > 0">
                 AND sc.scf_model_version = #{filter.modelVersion}
             </if>
             <if test="filter.southPath != null and filter.southPath != ''">
-                AND sc.scf_model_config.southPath LIKE '%' || #{filter.southPath} || '%'
+                AND UPPER(sc.scf_model_config.southPath) LIKE UPPER('%' || #{filter.southPath} || '%')
             </if>
             <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
                 AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
@@ -46,19 +46,19 @@
             AND sc.scf_is_deleted = 0
             AND sc.scf_connector_type = 'PSP_API_STANDARD'
             <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
-                AND sc.scf_code = #{filter.southConfigCode}
+                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
             </if>
             <if test="filter.connectorName != null and filter.connectorName != ''">
-                AND sc.scf_connector_name = #{filter.connectorName}
+                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
             </if>
             <if test="filter.connectorType != null">
-                AND sc.scf_connector_type = #{filter.connectorType}
+                AND UPPER(sc.scf_connector_type) LIKE UPPER('%' || #{filter.connectorType} || '%')
             </if>
             <if test="filter.modelVersion > 0">
                 AND sc.scf_model_version = #{filter.modelVersion}
             </if>
             <if test="filter.southPath != null and filter.southPath != ''">
-                AND sc.scf_model_config.southPath LIKE '%' || #{filter.southPath} || '%'
+                AND UPPER(sc.scf_model_config.southPath) LIKE UPPER('%' || #{filter.southPath} || '%')
             </if>
             <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
                 AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
@@ -71,16 +71,16 @@
             AND sc.scf_is_deleted = 0
             AND sc.scf_connector_type = 'PSP_BATCH_STANDARD'
             <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
-                AND sc.scf_code = #{filter.southConfigCode}
+                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
             </if>
             <if test="filter.connectorName != null and filter.connectorName != ''">
-                AND sc.scf_connector_name = #{filter.connectorName}
+                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
             </if>
             <if test="filter.modelVersion > 0">
                 AND sc.scf_model_version = #{filter.modelVersion}
             </if>
-            <if test="filter.maxRecords != null">
-                AND sc.scf_model_config.maxRecords LIKE '%' || #{filter.maxRecords} || '%'
+            <if test="filter.maxRecords > 0">
+                AND sc.scf_model_config.maxRecords = #{filter.maxRecords}
             </if>
 
             <if test="filter.writeCutoffTime != null">
@@ -107,6 +107,115 @@
     <select id="searchCountPspBatchStandard" resultType="int">
         SELECT COUNT(*) FROM pagopa_ma_south_config sc
         <include refid="searchPspBatchFilters" />
+    </select>
+
+    <select id="searchServiceProviderApiStandard" resultMap="config">
+        SELECT * FROM pagopa_ma_south_config sc
+        <where>
+            AND sc.scf_is_deleted = 0
+            AND sc.scf_connector_type = 'SERVICE_PROVIDER_API_STANDARD'
+            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
+                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
+            </if>
+            <if test="filter.connectorName != null and filter.connectorName != ''">
+                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
+            </if>
+            <if test="filter.modelVersion > 0">
+                AND sc.scf_model_version = #{filter.modelVersion}
+            </if>
+            <if test="filter.southPath != null and filter.southPath != ''">
+                AND UPPER(sc.scf_model_config.southPath) LIKE UPPER('%' || #{filter.southPath} || '%')
+            </if>
+            <if test="filter.hasGenericSearch != null">
+                <choose>
+                    <when test="filter.hasGenericSearch == true">
+                        AND sc.scf_model_config.hasGenericSearch = 'true'
+                    </when>
+                    <otherwise>
+                        AND sc.scf_model_config.hasGenericSearch = 'false'
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="filter.isPrivative != null">
+                <choose>
+                    <when test="filter.isPrivative == true">
+                        AND sc.scf_model_config.isPrivative = 'true'
+                    </when>
+                    <otherwise>
+                        AND sc.scf_model_config.isPrivative = 'false'
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="filter.isActive != null">
+                <choose>
+                    <when test="filter.isActive == true">
+                        AND sc.scf_model_config.isActive = 'true'
+                    </when>
+                    <otherwise>
+                        AND sc.scf_model_config.isActive = 'false'
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+        </where>
+        ORDER BY scf_id ASC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="searchCountServiceProviderApiStandard" resultType="int">
+        SELECT COUNT(*) FROM pagopa_ma_south_config sc
+        <where>
+            AND sc.scf_is_deleted = 0
+            AND sc.scf_connector_type = 'SERVICE_PROVIDER_API_STANDARD'
+            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
+                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
+            </if>
+            <if test="filter.connectorName != null and filter.connectorName != ''">
+                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
+            </if>
+            <if test="filter.modelVersion > 0">
+                AND sc.scf_model_version = #{filter.modelVersion}
+            </if>
+            <if test="filter.southPath != null and filter.southPath != ''">
+                AND UPPER(sc.scf_model_config.southPath) LIKE UPPER('%' || #{filter.southPath} || '%')
+            </if>
+            <if test="filter.hasGenericSearch != null">
+                <choose>
+                    <when test="filter.hasGenericSearch == true">
+                        AND sc.scf_model_config.hasGenericSearch = 'true'
+                    </when>
+                    <otherwise>
+                        AND sc.scf_model_config.hasGenericSearch = 'false'
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="filter.isPrivative != null">
+                <choose>
+                    <when test="filter.isPrivative == true">
+                        AND sc.scf_model_config.isPrivative = 'true'
+                    </when>
+                    <otherwise>
+                        AND sc.scf_model_config.isPrivative = 'false'
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="filter.isActive != null">
+                <choose>
+                    <when test="filter.isActive == true">
+                        AND sc.scf_model_config.isActive = 'true'
+                    </when>
+                    <otherwise>
+                        AND sc.scf_model_config.isActive = 'false'
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
+                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
+            </if>
+        </where>
     </select>
 
     <insert id="createOne" useGeneratedKeys="true" keyProperty="southConfigId" keyColumn="scf_id">

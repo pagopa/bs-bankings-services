@@ -26,22 +26,22 @@
                 AND UPPER(en_name) LIKE UPPER('%' || #{filter.name} || '%')
             </if>
             <if test="filter.supportEmail != null and filter.supportEmail != ''">
-                AND en_support_email = #{filter.supportEmail}
+                AND UPPER(en_support_email) LIKE UPPER('%' || #{filter.supportEmail} || '%')
             </if>
             <if test="filter.nationalCode != null and filter.nationalCode != ''">
-                AND psp_national_code = #{filter.nationalCode}
+                AND UPPER(psp_national_code) LIKE UPPER('%' || #{filter.nationalCode} || '%')
             </if>
             <if test="filter.countryCode != null">
-                AND psp_country_code = #{filter.countryCode}
+                AND UPPER(psp_country_code) LIKE UPPER('%' || #{filter.countryCode} || '%')
             </if>
             <if test="filter.bicCode != null and filter.bicCode != ''">
-                AND psp_bic_code = #{filter.bicCode}
+                AND UPPER(psp_bic_code) LIKE UPPER('%' || #{filter.bicCode} || '%')
             </if>
             <if test="filter.blacklisted != null and filter.blacklisted != ''">
                 AND psp_is_blacklisted = #{filter.blacklisted}
             </if>
             <if test="filter.accountValueType != null">
-                AND psp_account_value_type = #{filter.accountValueType}
+                AND UPPER(psp_account_value_type) LIKE UPPER('%' || #{filter.accountValueType} || '%')
             </if>
             <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
                 AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
@@ -62,22 +62,22 @@
                 AND UPPER(en_name) LIKE UPPER('%' || #{filter.name} || '%')
             </if>
             <if test="filter.supportEmail != null and filter.supportEmail != ''">
-                AND en_support_email = #{filter.supportEmail}
+                AND UPPER(en_support_email) LIKE UPPER('%' || #{filter.supportEmail} || '%')
             </if>
             <if test="filter.nationalCode != null and filter.nationalCode != ''">
-                AND psp_national_code = #{filter.nationalCode}
+                AND UPPER(psp_national_code) LIKE UPPER('%' || #{filter.nationalCode} || '%')
             </if>
             <if test="filter.countryCode != null">
-                AND psp_country_code = #{filter.countryCode}
+                AND UPPER(psp_country_code) LIKE UPPER('%' || #{filter.countryCode} || '%')
             </if>
             <if test="filter.bicCode != null and filter.bicCode != ''">
-                AND psp_bic_code = #{filter.bicCode}
+                AND UPPER(psp_bic_code) LIKE UPPER('%' || #{filter.bicCode} || '%')
             </if>
             <if test="filter.blacklisted != null and filter.blacklisted != ''">
                 AND psp_is_blacklisted = #{filter.blacklisted}
             </if>
             <if test="filter.accountValueType != null">
-                AND psp_account_value_type = #{filter.accountValueType}
+                AND UPPER(psp_account_value_type) LIKE UPPER('%' || #{filter.accountValueType} || '%')
             </if>
         </where>
     </select>
