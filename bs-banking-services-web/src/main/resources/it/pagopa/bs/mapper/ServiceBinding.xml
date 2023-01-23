@@ -304,7 +304,7 @@
         AND psp_deleted_datetime_mirror IS NULL
     </select>
 
-    <select id="getAllConfigsByServiceCodeAndConnectorType" resultMap="it.fabrick.pagopaconnector.web.mapper.SouthConfigMapper.config">
+    <select id="getAllConfigsByServiceCodeAndConnectorType" resultMap="it.pagopa.bs.web.mapper.SouthConfigMapper.config">
         SELECT *
         FROM pagopa_ma_south_config
         WHERE scf_id IN
@@ -321,7 +321,7 @@
         )
     </select>
 
-    <select id="getConfigByServiceCodeAndConnectorTypeAndConnectorName" resultMap="it.fabrick.pagopaconnector.web.mapper.SouthConfigMapper.config">
+    <select id="getConfigByServiceCodeAndConnectorTypeAndConnectorName" resultMap="it.pagopa.bs.web.mapper.SouthConfigMapper.config">
         SELECT *
         FROM pagopa_ma_south_config
         WHERE scf_id IN
