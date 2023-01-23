@@ -33,7 +33,6 @@ public class PagoPaProducer {
             String bulkRequestId,
             String requestCode,
             String correlationId,
-            String subscriptionId,
             String credentialId,
             long modelVersion,
             String destinationTopic,
@@ -46,7 +45,6 @@ public class PagoPaProducer {
                 .requestCode(requestCode)
                 .correlationId(correlationId)
                 .credentialId(credentialId)
-                .subscriptionId(subscriptionId)
                 .serviceCode(serviceCode)
                 .modelVersion(modelVersion)
                 .referenceDate(referenceDate)
@@ -77,14 +75,13 @@ public class PagoPaProducer {
         }
     }
 
-    public void sendFromBulk(CheckIbanEventModel eventPayload, String correlationId, String subscriptionId) {
+    public void sendFromBulk(CheckIbanEventModel eventPayload, String correlationId) {
 
         ReportEventModel wrapper = ReportEventModel.builder()
                 .eventUid(eventPayload.getEventUid())
                 .bulkRequestId(eventPayload.getBulkRequestId())
                 .requestCode(eventPayload.getRequestCode())
                 .correlationId(correlationId)
-                .subscriptionId(subscriptionId)
                 .credentialId(eventPayload.getInstitutionInfo().getCredentialId())
                 .serviceCode(ServiceCode.CHECK_IBAN_SIMPLE)
                 .modelVersion(Long.valueOf(eventPayload.getModelVersion()))

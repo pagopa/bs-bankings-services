@@ -16,7 +16,6 @@ public class EventLog implements Serializable {
 
     private String uid;
     private String credentialId;
-    private String subscriptionId;
 
     private LocalDate referenceLocalDate;
 

@@ -25,7 +25,6 @@ public class ReportEventModel implements Serializable {
     private String bulkRequestId;
     private String requestCode;
     private String correlationId;
-    private String subscriptionId;
     private String credentialId;
     private Long modelVersion;
     private ServiceCode serviceCode;
