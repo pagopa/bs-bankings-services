@@ -13,7 +13,6 @@
         <result column="elo_x_correlation_id" property="xCorrelationId" />
         <result column="elo_event_model_version" property="modelVersion" />
         <result column="elo_event_model" property="eventModel" />
-        <result column="elo_subscription_id" property="subscriptionId" />
     </resultMap>
 
     <select id="countAllByCredentialAndDate" resultType="java.lang.Integer">
@@ -35,8 +34,7 @@
             elo_x_correlation_id,
             elo_inserted_datetime,
             elo_event_model_version,
-            elo_event_model,
-            elo_subscription_id
+            elo_event_model
         )
         VALUES
         (
@@ -45,13 +43,12 @@
             #{event.referenceLocalDate},
             #{event.serviceCode},
             #{event.destinationTopic},
-            #{event.xOboHeader},
+            #{event.xOboHeader,jdbcType=VARCHAR},
             #{event.xOboPrimary},
             #{event.xCorrelationId},
             CURRENT_TIMESTAMP,
             #{event.modelVersion},
-            #{event.eventModel},
-            #{event.subscriptionId}
+            #{event.eventModel}
         )
     </insert>
 
