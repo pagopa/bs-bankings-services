@@ -321,16 +321,16 @@ public class CheckIbanService {
         log.info(event.toString());
 
         producer.send(
-                event,
-                event.getEventUid(),
-                event.getBulkRequestId(),
-                event.getRequestCode(),
-                correlationId,
-                event.getInstitutionInfo().getCredentialId(),
-                event.getModelVersion(),
-                reportDestination,
-                event.getReferenceDate(),
-                ServiceCode.CHECK_IBAN_SIMPLE
+            event,
+            event.getEventUid(),
+            event.getBulkRequestId(),
+            event.getRequestCode(),
+            correlationId,
+            event.getInstitutionInfo().getCredentialId(),
+            event.getModelVersion(),
+            reportDestination,
+            event.getReferenceDate(),
+            ServiceCode.CHECK_IBAN_SIMPLE
         );
     }
 }
