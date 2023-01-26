@@ -56,6 +56,15 @@ services:
     init: true
     networks:
       - backend
+
+  aws-mock:
+    image: motoserver/moto:latest
+    container_name: aws-mock
+    restart: always
+    ports:
+      - 5000:5000
+    networks:
+      - backend
     
   oracle:
     image: gvenzl/oracle-xe:21-slim-faststart
@@ -81,6 +90,12 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
+    environment:
+      AWS_ACCESS_KEY_ID: 'mock'
+      AWS_SECRET_ACCESS_KEY: 'mock'
+      AWS_SECURITY_TOKEN: 'mock'
+      AWS_SESSION_TOKEN: 'mock'
+      AWS_DEFAULT_REGION: 'us-east-1'
     depends_on:
       kafka:
         condition: service_healthy
