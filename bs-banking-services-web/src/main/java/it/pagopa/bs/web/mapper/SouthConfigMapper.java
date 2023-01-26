@@ -9,6 +9,7 @@ import it.pagopa.bs.checkiban.enumeration.ConnectorType;
 import it.pagopa.bs.checkiban.model.persistence.SouthConfig;
 import it.pagopa.bs.checkiban.model.persistence.filter.PspApiStandardSouthConfigFilter;
 import it.pagopa.bs.checkiban.model.persistence.filter.PspBatchStandardSouthConfigFilter;
+import it.pagopa.bs.checkiban.model.persistence.filter.ServiceProviderApiStandardSouthConfigFilter;
 
 @Mapper
 public interface SouthConfigMapper {
@@ -31,6 +32,16 @@ public interface SouthConfigMapper {
 
     int searchCountPspBatchStandard(
             @Param("filter") PspBatchStandardSouthConfigFilter internalFilter
+    );
+
+    List<SouthConfig> searchServiceProviderApiStandard(
+            @Param("filter") ServiceProviderApiStandardSouthConfigFilter filter,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    int searchCountServiceProviderApiStandard(
+            @Param("filter") ServiceProviderApiStandardSouthConfigFilter filter
     );
 
     int createOne(@Param("config") SouthConfig config);
