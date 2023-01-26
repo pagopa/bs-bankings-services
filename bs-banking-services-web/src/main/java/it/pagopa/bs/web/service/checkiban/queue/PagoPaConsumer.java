@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class PagoPaConsumer {
     
     private final ObjectMapper mapper = new ObjectMapper();
-    // private final ReportEventService eventService;
+    private final ReportEventService eventService;
     private final EventLogMapper eventLogMapper;
 
     @KafkaListener(
@@ -79,13 +79,12 @@ public class PagoPaConsumer {
             throw e;
         }
 
-        // 2. send to PagoPA API TODO: change with AWS lib
-        /*eventService.produceEvent(
-                event.getEventUid(),
-                event.getDestination(),
-                event.getCorrelationId(),
-                payloadString
-        ).subscribe(); // errors handled inside, to be retried later*/
+        // 2. send to PagoPA API
+        eventService.produceEvent(
+            event.getEventUid(),
+            event.getDestination(),
+            payloadString
+        ).subscribe(); // errors handled inside, to be retried later
     }
 
     private String stringifyPayload(Object payload) {

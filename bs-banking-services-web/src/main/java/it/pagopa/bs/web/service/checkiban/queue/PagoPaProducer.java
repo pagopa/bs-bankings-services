@@ -28,29 +28,29 @@ public class PagoPaProducer {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void send(
-            Object eventPayload,
-            String eventId,
-            String bulkRequestId,
-            String requestCode,
-            String correlationId,
-            String credentialId,
-            long modelVersion,
-            String destinationTopic,
-            LocalDate referenceDate,
-            ServiceCode serviceCode
+        Object eventPayload,
+        String eventId,
+        String bulkRequestId,
+        String requestCode,
+        String correlationId,
+        String credentialId,
+        long modelVersion,
+        String destinationTopic,
+        LocalDate referenceDate,
+        ServiceCode serviceCode
     ) {
         ReportEventModel wrapper = ReportEventModel.builder()
-                .eventUid(eventId)
-                .bulkRequestId(bulkRequestId)
-                .requestCode(requestCode)
-                .correlationId(correlationId)
-                .credentialId(credentialId)
-                .serviceCode(serviceCode)
-                .modelVersion(modelVersion)
-                .referenceDate(referenceDate)
-                .destination(destinationTopic)
-                .payload(objectMapper.valueToTree(eventPayload))
-                .build();
+            .eventUid(eventId)
+            .bulkRequestId(bulkRequestId)
+            .requestCode(requestCode)
+            .correlationId(correlationId)
+            .credentialId(credentialId)
+            .serviceCode(serviceCode)
+            .modelVersion(modelVersion)
+            .referenceDate(referenceDate)
+            .destination(destinationTopic)
+            .payload(objectMapper.valueToTree(eventPayload))
+            .build();
 
         try {
             kafkaTemplate.send(pagopaTopic, wrapper)
