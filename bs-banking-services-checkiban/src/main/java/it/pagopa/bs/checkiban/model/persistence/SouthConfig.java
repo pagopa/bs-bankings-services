@@ -3,7 +3,7 @@ package it.pagopa.bs.checkiban.model.persistence;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-import it.pagopa.bs.checkiban.enumeration.ConnectorType;
+import it.pagopa.bs.common.enumeration.ConnectorType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -2,7 +2,7 @@ package it.pagopa.bs.checkiban.model.persistence.filter;
 
 import java.time.ZonedDateTime;
 
-import it.pagopa.bs.checkiban.enumeration.ConnectorType;
+import it.pagopa.bs.common.enumeration.ConnectorType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
