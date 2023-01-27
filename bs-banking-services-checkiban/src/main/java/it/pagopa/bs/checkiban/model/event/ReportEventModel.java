@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import it.pagopa.bs.checkiban.enumeration.ServiceCode;
 import it.pagopa.bs.common.deserializer.LocalDateDeserializer;
+import it.pagopa.bs.common.enumeration.ServiceCode;
 import it.pagopa.bs.common.serializer.LocalDateSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

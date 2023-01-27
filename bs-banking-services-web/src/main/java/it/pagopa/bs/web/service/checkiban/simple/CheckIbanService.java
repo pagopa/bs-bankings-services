@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import it.pagopa.bs.checkiban.enumeration.ServiceCode;
 import it.pagopa.bs.checkiban.enumeration.ValidationStatus;
 import it.pagopa.bs.checkiban.exception.AggregatorFailureException;
 import it.pagopa.bs.checkiban.exception.DetailedExceptionWrapper;
@@ -28,6 +27,7 @@ import it.pagopa.bs.checkiban.model.persistence.Institution;
 import it.pagopa.bs.checkiban.util.CheckIbanUtil;
 import it.pagopa.bs.common.enumeration.ConnectorType;
 import it.pagopa.bs.common.enumeration.ErrorCodes;
+import it.pagopa.bs.common.enumeration.ServiceCode;
 import it.pagopa.bs.web.mapper.InstitutionMapper;
 import it.pagopa.bs.web.service.IbanServices;
 import it.pagopa.bs.web.service.checkiban.queue.PagoPaProducer;

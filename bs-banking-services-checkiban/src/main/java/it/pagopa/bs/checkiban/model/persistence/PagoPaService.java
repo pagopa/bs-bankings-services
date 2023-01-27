@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-import it.pagopa.bs.checkiban.enumeration.ServiceCode;
+import it.pagopa.bs.common.enumeration.ServiceCode;
 
 @Data
 @Builder

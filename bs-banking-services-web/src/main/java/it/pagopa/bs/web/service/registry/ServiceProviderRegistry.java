@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import it.pagopa.bs.checkiban.enumeration.ServiceCode;
 import it.pagopa.bs.checkiban.model.persistence.ServiceBinding;
 import it.pagopa.bs.checkiban.model.persistence.ServiceProviderConfig;
 import it.pagopa.bs.checkiban.model.persistence.SouthConfig;
 import it.pagopa.bs.common.enumeration.ConnectorType;
+import it.pagopa.bs.common.enumeration.ServiceCode;
 import it.pagopa.bs.common.exception.ParsingException;
 import it.pagopa.bs.common.util.parser.JsonUtil;
 import it.pagopa.bs.web.mapper.ServiceBindingMapper;

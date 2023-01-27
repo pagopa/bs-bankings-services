@@ -2,7 +2,7 @@ package it.pagopa.bs.checkiban.model.persistence;
 
 import java.io.Serializable;
 
-import it.pagopa.bs.checkiban.enumeration.ServiceCode;
+import it.pagopa.bs.common.enumeration.ServiceCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

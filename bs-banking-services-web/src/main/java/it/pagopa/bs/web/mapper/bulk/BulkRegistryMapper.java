@@ -6,8 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import it.pagopa.bs.checkiban.enumeration.BulkStatus;
-import it.pagopa.bs.checkiban.enumeration.ServiceCode;
 import it.pagopa.bs.checkiban.model.persistence.BulkRegistry;
+import it.pagopa.bs.common.enumeration.ServiceCode;
 
 @Mapper
 public interface BulkRegistryMapper {

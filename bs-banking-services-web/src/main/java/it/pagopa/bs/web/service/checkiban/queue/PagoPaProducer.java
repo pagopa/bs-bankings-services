@@ -10,9 +10,9 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import it.pagopa.bs.checkiban.enumeration.ServiceCode;
 import it.pagopa.bs.checkiban.model.event.CheckIbanEventModel;
 import it.pagopa.bs.checkiban.model.event.ReportEventModel;
+import it.pagopa.bs.common.enumeration.ServiceCode;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 

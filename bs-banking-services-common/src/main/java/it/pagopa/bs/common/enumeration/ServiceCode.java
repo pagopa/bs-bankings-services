@@ -1,4 +1,4 @@
-package it.pagopa.bs.checkiban.enumeration;
+package it.pagopa.bs.common.enumeration;
 
 public enum ServiceCode {
     

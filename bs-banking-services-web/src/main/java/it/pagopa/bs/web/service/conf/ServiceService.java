@@ -7,13 +7,13 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import it.pagopa.bs.checkiban.enumeration.ServiceCode;
 import it.pagopa.bs.checkiban.model.api.request.config.service.CreateServiceRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.service.SearchServiceRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.service.UpdateServiceRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.service.ServiceResponse;
 import it.pagopa.bs.checkiban.model.persistence.PagoPaService;
 import it.pagopa.bs.checkiban.model.persistence.filter.ServiceFilter;
+import it.pagopa.bs.common.enumeration.ServiceCode;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;
 import it.pagopa.bs.common.model.api.shared.ListResponseModel;
