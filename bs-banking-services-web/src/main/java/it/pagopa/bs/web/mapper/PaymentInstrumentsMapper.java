@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
 import it.pagopa.bs.cobadge.model.persistence.PaymentInstrumentsOp;
 
 @Mapper
-public interface PaymentInstrumentsOperations {
+public interface PaymentInstrumentsMapper {
 
     void insert(@Param("uuid") String uuid, @Param("serviceProviderName") String serviceProviderName, @Param("request") String request);
 
