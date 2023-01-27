@@ -1,4 +1,4 @@
-package it.pagopa.bs.web.service.checkiban.registry;
+package it.pagopa.bs.web.service.registry;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import it.pagopa.bs.checkiban.enumeration.ConnectorType;
 import it.pagopa.bs.checkiban.enumeration.ServiceCode;
 import it.pagopa.bs.checkiban.model.persistence.PspConfig;
 import it.pagopa.bs.checkiban.model.persistence.ServiceBinding;
+import it.pagopa.bs.common.enumeration.ConnectorType;
 import it.pagopa.bs.common.exception.ParsingException;
 import it.pagopa.bs.common.util.parser.JsonUtil;
 import it.pagopa.bs.web.mapper.ServiceBindingMapper;
 import it.pagopa.bs.web.service.checkiban.connector.api.DefaultConnectorService;
-import it.pagopa.bs.web.service.checkiban.domain.PspWithConfig;
+import it.pagopa.bs.web.service.domain.PspWithConfig;
 
 @Service
 public class PspRegistry {

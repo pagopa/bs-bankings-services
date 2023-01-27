@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import it.pagopa.bs.checkiban.enumeration.ConnectorType;
 import it.pagopa.bs.checkiban.model.api.request.config.south.CreateSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.SearchSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.UpdateSouthConfigRequest;
@@ -31,6 +30,7 @@ import it.pagopa.bs.checkiban.model.persistence.filter.PspApiStandardSouthConfig
 import it.pagopa.bs.checkiban.model.persistence.filter.PspBatchStandardSouthConfigFilter;
 import it.pagopa.bs.checkiban.model.persistence.filter.ServiceProviderApiStandardSouthConfigFilter;
 import it.pagopa.bs.checkiban.model.persistence.filter.SouthConfigFilter;
+import it.pagopa.bs.common.enumeration.ConnectorType;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ParsingException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;

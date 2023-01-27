@@ -24,7 +24,7 @@ import it.pagopa.bs.common.model.api.shared.ListResponseModel;
 import it.pagopa.bs.common.model.api.shared.PaginationModel;
 import it.pagopa.bs.common.model.api.shared.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
-import it.pagopa.bs.web.service.checkiban.registry.PspRegistry;
+import it.pagopa.bs.web.service.registry.PspRegistry;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

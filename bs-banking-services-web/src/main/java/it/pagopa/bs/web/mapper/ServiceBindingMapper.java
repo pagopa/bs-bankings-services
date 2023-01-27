@@ -5,11 +5,11 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import it.pagopa.bs.checkiban.enumeration.ConnectorType;
 import it.pagopa.bs.checkiban.enumeration.ServiceCode;
 import it.pagopa.bs.checkiban.model.persistence.ServiceBinding;
 import it.pagopa.bs.checkiban.model.persistence.SouthConfig;
 import it.pagopa.bs.checkiban.model.persistence.filter.ServiceBindingFilter;
+import it.pagopa.bs.common.enumeration.ConnectorType;
 
 @Mapper
 public interface ServiceBindingMapper {

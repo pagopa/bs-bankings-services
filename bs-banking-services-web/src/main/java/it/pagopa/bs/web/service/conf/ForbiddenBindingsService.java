@@ -5,8 +5,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import it.pagopa.bs.checkiban.enumeration.ConnectorType;
 import it.pagopa.bs.checkiban.enumeration.ServiceCode;
+import it.pagopa.bs.common.enumeration.ConnectorType;
 
 @Service
 public class ForbiddenBindingsService {

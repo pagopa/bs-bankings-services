@@ -1,4 +1,4 @@
-package it.pagopa.bs.web.service.checkiban.domain;
+package it.pagopa.bs.web.service.domain;
 
 import it.pagopa.bs.web.service.checkiban.connector.api.DefaultConnectorService;
 import lombok.AllArgsConstructor;
