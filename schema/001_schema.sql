@@ -180,3 +180,21 @@ CREATE TABLE pagopa_tr_batch_registry(
     FOREIGN KEY (bar_bulk_request_id)       REFERENCES pagopa_tr_bulk_registry(bur_bulk_request_id) ON DELETE CASCADE
 );
 COMMIT;
+
+
+-- COBADGE
+CREATE TABLE pagopa_tr_search_request(
+    sr_uid                      VARCHAR(128)                                NOT NULL,
+    sr_service_provider_name    VARCHAR(128)                                NOT NULL,
+    sr_request                  CLOB                                        NOT NULL,
+    sr_response                 CLOB,
+    sr_created_datetime         TIMESTAMP       DEFAULT CURRENT_TIMESTAMP   NOT NULL,
+    sr_updated_datetime         TIMESTAMP       DEFAULT CURRENT_TIMESTAMP   NOT NULL,
+    sr_failures_count           NUMBER          DEFAULT 0                   NOT NULL,
+    sr_is_completed             NUMBER(1,0)     DEFAULT 0                   NOT NULL,
+    CONSTRAINT pagopa_tr_search_request_pk PRIMARY KEY (sr_uid, sr_service_provider_name),
+	CONSTRAINT sr_request_is_json           CHECK (sr_request   IS JSON),
+    CONSTRAINT sr_response_is_json          CHECK (sr_response  IS JSON)
+);
+CREATE INDEX pagopa_idx_sr_created_datetime ON pagopa_tr_search_request (sr_created_datetime);
+COMMIT;
