@@ -57,6 +57,15 @@ services:
     networks:
       - backend
 
+  hazelcast:
+    image: hazelcast/hazelcast:latest
+    container_name: hazelcast
+    ports:
+      - 5701:5701
+      - 5702:5702
+    networks:
+      - backend
+
   aws-mock:
     image: motoserver/moto:latest
     container_name: aws-mock
