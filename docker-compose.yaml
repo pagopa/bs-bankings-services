@@ -58,8 +58,11 @@ services:
       - backend
 
   hazelcast:
-    image: hazelcast/hazelcast:3.12.12
+    image: hazelcast/hazelcast:5.2.1
     container_name: hazelcast
+    restart: always
+    environment:
+      HZ_CLUSTERNAME: pagopa
     ports:
       - 5701:5701
       - 5702:5702
