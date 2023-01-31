@@ -58,7 +58,7 @@ services:
       - backend
 
   hazelcast:
-    image: hazelcast/hazelcast:latest
+    image: hazelcast/hazelcast:3.12.12
     container_name: hazelcast
     ports:
       - 5701:5701
