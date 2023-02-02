@@ -31,7 +31,7 @@
 		<spring.boot.version>2.6.6</spring.boot.version>
 		<spring.framework.version>5.3.18</spring.framework.version>
 		<openapi.version>1.6.7</openapi.version>
-		<spring.hazelcast.version>5.2.1</spring.hazelcast.version>
+		<spring.hazelcast.version>4.2.6</spring.hazelcast.version>
 		<curator.version>4.3.0</curator.version>
         <zookeeper.version>3.4.14</zookeeper.version>
 	</properties>

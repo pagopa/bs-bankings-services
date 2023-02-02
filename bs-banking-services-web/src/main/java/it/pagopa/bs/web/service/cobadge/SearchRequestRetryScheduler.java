@@ -77,6 +77,8 @@ public class SearchRequestRetryScheduler {
                 parseAndSend(paymentInstrumentsOp, ic);
             }
         }
+
+        log.info("... finished retry policy");
     }
 
     private void parseAndSend(PaymentInstrumentsOp op, AConnector ic) {
