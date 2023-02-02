@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.pagopa.bs.cobadge.model.api.request.PaymentInstrumentRequest;
 import it.pagopa.bs.cobadge.model.api.response.PaymentInstrumentResponse;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
 import it.pagopa.bs.web.service.cobadge.PaymentInstrumentsService;
 import lombok.RequiredArgsConstructor;

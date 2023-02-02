@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.pagopa.bs.checkiban.model.api.request.simple.ValidateAccountHolderRequest;
 import it.pagopa.bs.checkiban.model.api.response.simple.ValidateAccountHolderResponse;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.HeaderUtil;
 import it.pagopa.bs.common.util.ResponseBuilder;
 import it.pagopa.bs.web.service.checkiban.simple.CheckIbanService;

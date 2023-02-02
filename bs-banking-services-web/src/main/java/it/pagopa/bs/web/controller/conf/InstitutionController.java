@@ -20,8 +20,8 @@ import it.pagopa.bs.checkiban.model.api.request.config.institution.CreateInstitu
 import it.pagopa.bs.checkiban.model.api.request.config.institution.SearchInstitutionRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.institution.UpdateInstitutionRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.institution.InstitutionResponse;
-import it.pagopa.bs.common.model.api.shared.ListResponseModel;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
+import it.pagopa.bs.common.model.api.response.ListResponseModel;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
 import it.pagopa.bs.web.service.conf.InstitutionService;
 import lombok.RequiredArgsConstructor;

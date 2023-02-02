@@ -20,8 +20,8 @@ import it.pagopa.bs.checkiban.model.api.request.config.service.CreateServiceRequ
 import it.pagopa.bs.checkiban.model.api.request.config.service.SearchServiceRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.service.UpdateServiceRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.service.ServiceResponse;
-import it.pagopa.bs.common.model.api.shared.ListResponseModel;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
+import it.pagopa.bs.common.model.api.response.ListResponseModel;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
 import it.pagopa.bs.web.service.conf.ServiceService;
 import lombok.RequiredArgsConstructor;

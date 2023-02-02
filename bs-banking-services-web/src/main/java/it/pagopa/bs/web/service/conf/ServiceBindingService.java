@@ -17,7 +17,7 @@ import it.pagopa.bs.checkiban.model.persistence.filter.ServiceBindingFilter;
 import it.pagopa.bs.common.exception.BadRequestException;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;
-import it.pagopa.bs.common.model.api.shared.ListResponseModel;
+import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.shared.PaginationModel;
 import it.pagopa.bs.common.util.PaginationUtil;
 import it.pagopa.bs.common.util.parser.IdentifierUtil;

@@ -19,8 +19,8 @@ import it.pagopa.bs.checkiban.model.api.request.config.whitelist.CreateWhitelist
 import it.pagopa.bs.checkiban.model.api.request.config.whitelist.SearchWhitelistRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.whitelist.UpdateWhitelistRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.whitelist.WhitelistResponse;
-import it.pagopa.bs.common.model.api.shared.ListResponseModel;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
+import it.pagopa.bs.common.model.api.response.ListResponseModel;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
 import it.pagopa.bs.web.service.conf.WhitelistService;
 import lombok.RequiredArgsConstructor;

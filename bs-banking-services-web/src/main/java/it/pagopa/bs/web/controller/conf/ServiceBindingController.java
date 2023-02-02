@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.pagopa.bs.checkiban.model.api.request.config.binding.SearchServiceBindingRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.binding.ServiceBindingResponse;
-import it.pagopa.bs.common.model.api.shared.ListResponseModel;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
+import it.pagopa.bs.common.model.api.response.ListResponseModel;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
 import it.pagopa.bs.web.service.conf.ServiceBindingService;
 import lombok.RequiredArgsConstructor;

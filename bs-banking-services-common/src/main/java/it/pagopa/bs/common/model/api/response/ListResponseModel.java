@@ -1,7 +1,10 @@
-package it.pagopa.bs.common.model.api.shared;
+package it.pagopa.bs.common.model.api.response;
 
 import java.io.Serializable;
 import java.util.List;
+
+import it.pagopa.bs.common.model.api.shared.PaginationModel;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 
 public class ListResponseModel<T> implements Serializable {
     private List<T> list;

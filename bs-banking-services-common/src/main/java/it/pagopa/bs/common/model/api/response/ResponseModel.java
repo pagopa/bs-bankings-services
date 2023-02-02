@@ -1,9 +1,10 @@
-package it.pagopa.bs.common.model.api.shared;
+package it.pagopa.bs.common.model.api.response;
 
 import java.io.Serializable;
 import java.util.Collection;
 
 import it.pagopa.bs.common.enumeration.ResponseStatus;
+import it.pagopa.bs.common.model.api.shared.ErrorModel;
 import lombok.Data;
 
 @Data

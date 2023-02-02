@@ -26,8 +26,8 @@ import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.CreateServi
 import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.SearchServiceProviderApiStandardSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.UpdateServiceProviderApiStandardSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.south.SouthConfigResponse;
-import it.pagopa.bs.common.model.api.shared.ListResponseModel;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
+import it.pagopa.bs.common.model.api.response.ListResponseModel;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
 import it.pagopa.bs.web.service.conf.SouthConfigService;
 import lombok.RequiredArgsConstructor;

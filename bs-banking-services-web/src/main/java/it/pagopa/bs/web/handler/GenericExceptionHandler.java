@@ -39,8 +39,8 @@ import it.pagopa.bs.common.exception.BadRequestException;
 import it.pagopa.bs.common.exception.CryptoException;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.model.api.shared.ErrorModel;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 

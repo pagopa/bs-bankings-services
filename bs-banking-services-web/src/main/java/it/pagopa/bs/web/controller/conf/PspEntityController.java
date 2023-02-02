@@ -20,8 +20,8 @@ import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.CreatePspReque
 import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.SearchPspRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.UpdatePspRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.entity.psp.PspResponse;
-import it.pagopa.bs.common.model.api.shared.ListResponseModel;
-import it.pagopa.bs.common.model.api.shared.ResponseModel;
+import it.pagopa.bs.common.model.api.response.ListResponseModel;
+import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
 import it.pagopa.bs.web.service.conf.PspEntityService;
 import lombok.RequiredArgsConstructor;
