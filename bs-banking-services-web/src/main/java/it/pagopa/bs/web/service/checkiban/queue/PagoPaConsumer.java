@@ -56,7 +56,7 @@ public class PagoPaConsumer {
 
         String payloadString = stringifyPayload(event.getPayload());
         try {
-            // 1. Write on Fabrick DB
+            // 1. Write on DB
             eventLogMapper.insertEvent(
                 EventLog.builder()
                     .uid(event.getEventUid())

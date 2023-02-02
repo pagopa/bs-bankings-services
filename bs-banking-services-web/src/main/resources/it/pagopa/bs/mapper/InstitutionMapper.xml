@@ -33,9 +33,6 @@
             <if test="filter.fiscalCode != null and filter.fiscalCode != ''">
                 AND UPPER(ins_fiscal_code) LIKE UPPER('%' || #{filter.fiscalCode} || '%')
             </if>
-            <if test="filter.fabrickUserId != null and filter.fabrickUserId != ''">
-                AND ins_fabrick_user = #{filter.fabrickUserId}
-            </if>
             <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
                 AND TO_TIMESTAMP_TZ(SUBSTR(ins_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
             </if>
@@ -62,9 +59,6 @@
             <if test="filter.credentialId != null and filter.credentialId != ''">
                 AND ins_credential_id = #{filter.credentialId}
             </if>
-            <if test="filter.fabrickUserId != null and filter.fabrickUserId != ''">
-                AND ins_fabrick_user = #{filter.fabrickUserId}
-            </if>
             <if test="filter.fiscalCode != null and filter.fiscalCode != ''">
                 AND UPPER(ins_fiscal_code) LIKE UPPER('%' || #{filter.fiscalCode} || '%')
             </if>
@@ -90,7 +84,6 @@
             ins_cdc_code,
             ins_cdc_description,
             ins_credential_id,
-            ins_fabrick_user,
             ins_fiscal_code
         )
         VALUES
@@ -101,7 +94,6 @@
             #{institution.cdcCode},
             #{institution.cdcDescription},
             #{institution.credentialId},
-            #{institution.fabrickUserId},
             #{institution.fiscalCode}
         )
     </insert>
@@ -127,9 +119,6 @@
             </if>
             <if test="institution.credentialId != null and institution.credentialId != ''">
                 ins_credential_id = #{institution.credentialId},
-            </if>
-            <if test="institution.fabrickUserId != null and institution.fabrickUserId != ''">
-                ins_fabrick_user = #{institution.fabrickUserId},
             </if>
             <if test="institution.fiscalCode != null and institution.fiscalCode != ''">
                 ins_fiscal_code = #{institution.fiscalCode}

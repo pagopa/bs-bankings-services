@@ -29,10 +29,6 @@ public class CreateInstitutionRequest {
     @Size(max = 50)
     private String credentialId;
 
-    @NotEmpty
-    @Size(max = 100)
-    private String fabrickUserId;
-
     @Size(max = 100)
     private String fiscalCode;
 }

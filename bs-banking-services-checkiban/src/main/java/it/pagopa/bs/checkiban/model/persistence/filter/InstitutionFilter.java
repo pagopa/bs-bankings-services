@@ -17,7 +17,6 @@ public class InstitutionFilter {
     private String institutionCode;
     private String cdcCode;
     private String credentialId;
-    private String fabrickUserId;
     private String fiscalCode;
     private ZonedDateTime createdStartDatetime;
     private ZonedDateTime createdEndDatetime;

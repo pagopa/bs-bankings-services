@@ -111,7 +111,6 @@ public class InstitutionService {
             .cdcCode(filter.getCdcCode())
             .institutionCode(filter.getInstitutionCode())
             .credentialId(filter.getCredentialId())
-            .fabrickUserId(filter.getFabrickUserId())
             .createdStartDatetime(filter.getCreatedDatetimeRange().getFromDatetime())
             .createdEndDatetime(filter.getCreatedDatetimeRange().getToDatetime())
             .fiscalCode(filter.getFiscalCode())

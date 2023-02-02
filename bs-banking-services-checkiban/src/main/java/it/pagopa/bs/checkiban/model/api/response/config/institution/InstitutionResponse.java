@@ -24,7 +24,6 @@ public class InstitutionResponse {
     private String cdcCode;
     private String cdcDescription;
     private String credentialId;
-    private String fabrickUserId;
     private String fiscalCode;
 
     @JsonSerialize(using = DateTimeSerializer.class)

@@ -26,9 +26,6 @@ public class SearchInstitutionRequest {
     private String credentialId;
 
     @Size(max = 100)
-    private String fabrickUserId;
-
-    @Size(max = 100)
     private String fiscalCode;
 
     @Valid
