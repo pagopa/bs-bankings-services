@@ -17,7 +17,7 @@ public class HazelcastCluster implements DisposableBean {
         this.hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
     }
 
-    public HazelcastInstance getInstance(String name) {
+    public HazelcastInstance getInstance() {
         return this.hazelcastInstance;
     }
 
