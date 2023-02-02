@@ -113,6 +113,8 @@ services:
         condition: service_healthy
       oracle:
         condition: service_healthy
+      hazelcast:
+        condition: service_started
     ports:
       - 8080:8080
       - 5005:5005

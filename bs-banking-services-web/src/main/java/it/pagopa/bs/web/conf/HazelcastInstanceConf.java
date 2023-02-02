@@ -9,7 +9,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 @Configuration
-public class HazelcastClientConf {
+public class HazelcastInstanceConf {
 
     @Value("${pagopa.bs.hazelcast.cluster-name}")
     private String clusterName;
@@ -18,6 +18,8 @@ public class HazelcastClientConf {
     public HazelcastInstance hazelcastInstance() {
         Config helloWorldConfig = new Config();
         helloWorldConfig.setClusterName(clusterName);
-        return Hazelcast.newHazelcastInstance(helloWorldConfig);
+        helloWorldConfig.setInstanceName(clusterName + "instance");
+        return Hazelcast.getOrCreateHazelcastInstance(helloWorldConfig);//.newHazelcastInstance(helloWorldConfig);
     }
 }
+ 
