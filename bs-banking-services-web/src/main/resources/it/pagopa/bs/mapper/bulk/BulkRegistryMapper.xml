@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="it.pagopa.bs.web.mapper.BulkRegistryMapper">
+<mapper namespace="it.pagopa.bs.web.mapper.bulk.BulkRegistryMapper">
 
     <resultMap id="bulkRegistry" type="it.pagopa.bs.checkiban.model.persistence.BulkRegistry">
         <id column="bur_bulk_request_id" property="bulkRequestId" />

@@ -17,32 +17,34 @@ import reactor.core.publisher.Mono;
 @CustomLog
 public class IbanServices {
 
-    public Mono<ValidateIbanResponse> validateIbanFormat(String correlationId, String iban) {
+    public ValidateIbanResponse validateIbanFormat(String iban) {
 
         IBAN ibanModel = null;
         try {
             ibanModel = IBAN.parse(iban);
         } catch(Exception e) {
             log.error(e);
-            return Mono.error(new DetailedExceptionWrapper(new InvalidIBANException(), ErrorCodes.INVALID_IBAN));
+            throw new DetailedExceptionWrapper(new InvalidIBANException(), ErrorCodes.INVALID_IBAN);
         }
 
         final String nationalCode = IBANFields.getBankIdentifier(ibanModel).get();
         final String branchCode = IBANFields.getBranchIdentifier(ibanModel).get();
         final String countryCode = ibanModel.getCountryCode();
 
-        return Mono.just(
-            ValidateIbanResponse.builder()
-                .iban(iban)
-                .elements(
-                    IBANElements.builder()
-                        .nationalCode(nationalCode)
-                        .countryCode(countryCode)
-                        .branchCode(branchCode)
-                        .build()
-                )
-                .bankInfo(null) // not used
-                .build()
-        );
+        return ValidateIbanResponse.builder()
+            .iban(iban)
+            .elements(
+                IBANElements.builder()
+                    .nationalCode(nationalCode)
+                    .countryCode(countryCode)
+                    .branchCode(branchCode)
+                    .build()
+            )
+            .bankInfo(null) // not used
+            .build();
+    }
+
+    public Mono<ValidateIbanResponse> validateIbanFormat(String correlationId, String iban) {
+        return Mono.just(this.validateIbanFormat(iban));
     }
 }

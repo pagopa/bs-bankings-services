@@ -1,4 +1,4 @@
-package it.pagopa.bs.web.service.cobadge;
+package it.pagopa.bs.web.service.cobadge.scheduler;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -14,20 +14,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import it.pagopa.bs.cobadge.model.persistence.PaymentInstrumentsOp;
 import it.pagopa.bs.web.mapper.PaymentInstrumentsMapper;
-import it.pagopa.bs.web.service.lock.LockingService;
+import it.pagopa.bs.web.service.lock.ClusteredLockingService;
 import lombok.CustomLog;
+import reactor.core.publisher.Mono;
 
 @Service
 @CustomLog
 public class SearchRequestCleanScheduler { // scheduler for deleting old records due to PCI requirements
 
     private final String mapKey;
-    private final LockingService lockingService;
+    private final ClusteredLockingService lockingService;
 
     private final PaymentInstrumentsMapper paymentInstrumentsOperations;
-
-    @Value("${pagopa.bs.hazelcast.scheduler-map-name}")
-    private String schedulerMapName;
 
     private static final int MAX_DELETE_PARALLELISM = 512;
     private static final int REPLACEMENT_REQUEST_SIZE = 1000; // even in worst case scenario it can be no more than 1000
@@ -42,7 +40,7 @@ public class SearchRequestCleanScheduler { // scheduler for deleting old records
     private String thirdReplacementResponse;
 
     public SearchRequestCleanScheduler(
-            LockingService lockingService,
+            ClusteredLockingService lockingService,
             PaymentInstrumentsMapper paymentInstrumentsOperations
     ) {
         this.lockingService = lockingService;
@@ -61,14 +59,24 @@ public class SearchRequestCleanScheduler { // scheduler for deleting old records
     }
 
     @Scheduled(cron = "${pagopa.bs.payment-instruments-clean.cron}")
-    @Transactional
     public void deleteScheduler() {
 
-        if(!lockingService.acquireLock(schedulerMapName, mapKey, 2, TimeUnit.MINUTES)) {
-            log.info("[" + mapKey + "]" + ": Lock already taken by another instance!");
-            return;
-        }
+        log.info("started cobadge clean scheduler ...");
 
+        lockingService.executeImmediateAndRelease(
+            mapKey,
+            this::doClean,
+            () -> log.info("[" + mapKey + "]: already taken by other component / thread"),
+            () -> log.warn("Couldn't get lock from Hazelcast"), // no fallback
+            1,
+            TimeUnit.HOURS
+        );
+
+        log.info("finished cobadge clean scheduler ...");
+    }
+
+    @Transactional
+    public Mono<Void> doClean() {
         log.info("deleting old records ...");
 
         List<PaymentInstrumentsOp> recordsToDelete = paymentInstrumentsOperations.getOld(
@@ -77,7 +85,7 @@ public class SearchRequestCleanScheduler { // scheduler for deleting old records
         );
         if(recordsToDelete == null || recordsToDelete.isEmpty()) {
             log.info("... no records to delete");
-            return;
+            return Mono.empty();
         }
 
         // 0
@@ -104,6 +112,8 @@ public class SearchRequestCleanScheduler { // scheduler for deleting old records
         paymentInstrumentsOperations.deleteOldRecords(recordsToDelete);
 
         log.info("... finished deleting old records");
+
+        return Mono.empty();
     }
 
     private String generateReplacement(String wildcard, int size) {

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="it.pagopa.bs.web.mapper.BulkElementMapper">
+<mapper namespace="it.pagopa.bs.web.mapper.bulk.BulkElementMapper">
 
     <resultMap id="bulkElement" type="it.pagopa.bs.checkiban.model.persistence.BulkElement">
         <result column="bue_bulk_request_id" property="bulkRequestId" />
         <result column="bue_request_id" property="requestId" />
         <result column="bue_batch_element_id" property="batchElementId" />
-        <result column="bue_request_json" property="requestJson" />
+        <!--<result column="bue_request_json" property="requestJson" />-->
         <result column="bue_response_json" property="responseJson" />
         <result column="bue_element_status" property="elementStatus" />
         <result column="bue_batch_element_connector" property="batchElementConnector" />
@@ -20,7 +20,6 @@
         (
             bue_bulk_request_id,
             bue_request_id,
-            bue_request_json,
             bue_response_json,
             bue_element_status,
             bue_inserted_datetime,
@@ -31,7 +30,6 @@
         (
             #{bulkRequestId},
             #{requestId},
-            #{requestJson},
             #{responseJson},
             #{elementStatus},
             CURRENT_TIMESTAMP,

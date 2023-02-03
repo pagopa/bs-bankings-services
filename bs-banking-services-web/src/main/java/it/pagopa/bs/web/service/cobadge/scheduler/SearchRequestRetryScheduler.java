@@ -1,4 +1,4 @@
-package it.pagopa.bs.web.service.cobadge;
+package it.pagopa.bs.web.service.cobadge.scheduler;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -16,16 +16,17 @@ import it.pagopa.bs.common.client.RestClient;
 import it.pagopa.bs.web.mapper.PaymentInstrumentsMapper;
 import it.pagopa.bs.web.service.cobadge.connector.AConnector;
 import it.pagopa.bs.web.service.domain.ServiceProviderWithConfig;
-import it.pagopa.bs.web.service.lock.LockingService;
+import it.pagopa.bs.web.service.lock.ClusteredLockingService;
 import it.pagopa.bs.web.service.registry.ServiceProviderRegistry;
 import lombok.CustomLog;
+import reactor.core.publisher.Mono;
 
 @Service
 @CustomLog
 public class SearchRequestRetryScheduler {
 
     private final String mapKey;
-    private final LockingService lockingService;
+    private final ClusteredLockingService lockingService;
 
     private final ObjectMapper mapper;
     private final RestClient restClient;
@@ -33,7 +34,6 @@ public class SearchRequestRetryScheduler {
     private final ServiceProviderRegistry serviceProviderRegistry;
     private final PaymentInstrumentsMapper paymentInstrumentsOperations;
 
-    @Value("${pagopa.bs.hazelcast.scheduler-map-name}") private String schedulerMapName;
     @Value("${pagopa.bs.payment-instruments.timeout}") private int timeout;
 
     private static final int MAX_RETRY_PARALLELISM = 512;
@@ -42,7 +42,7 @@ public class SearchRequestRetryScheduler {
         RestClient restClient,
         PaymentInstrumentsMapper paymentInstrumentsOperations,
         ServiceProviderRegistry serviceProviderRegistry,
-        LockingService lockingService
+        ClusteredLockingService lockingService
     ) {
         this.lockingService = lockingService;
         this.paymentInstrumentsOperations = paymentInstrumentsOperations;
@@ -55,11 +55,21 @@ public class SearchRequestRetryScheduler {
     @Scheduled(cron = "${pagopa.bs.payment-instruments-retry.cron}")
     public void retryScheduler() {
         
-        if(!lockingService.acquireLock(schedulerMapName, mapKey, 3, TimeUnit.MINUTES)) {
-            log.info("[" + mapKey + "]" + ": Lock already taken by another instance!");
-            return;
-        }
+        log.info("started timeout checks and cleaning completed bulk requests ...");
 
+        lockingService.executeImmediateAndRelease(
+            mapKey,
+            this::doRetry,
+            () -> log.info("[" + mapKey + "]: already taken by other component / thread"),
+            () -> log.warn("Couldn't get lock from Hazelcast"), // no fallback
+            1,
+            TimeUnit.HOURS
+        );
+
+        log.info("finished timeout checks and cleaning completed bulk requests ...");
+    }
+
+    private Mono<Void> doRetry() {
         log.info("begin retry policy ...");
 
         for (PaymentInstrumentsOp paymentInstrumentsOp : paymentInstrumentsOperations.getFailed(timeout, MAX_RETRY_PARALLELISM, LocalDateTime.now().minus(1, ChronoUnit.HOURS))) {
@@ -79,6 +89,8 @@ public class SearchRequestRetryScheduler {
         }
 
         log.info("... finished retry policy");
+
+        return Mono.empty();
     }
 
     private void parseAndSend(PaymentInstrumentsOp op, AConnector ic) {

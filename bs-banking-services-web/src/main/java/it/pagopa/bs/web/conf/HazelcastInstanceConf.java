@@ -17,4 +17,3 @@ public class HazelcastInstanceConf {
         return new HazelcastCluster(clusterName);
     }
 }
- 
