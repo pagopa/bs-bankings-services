@@ -13,6 +13,7 @@ COMMIT;
 INSERT INTO pagopa_ma_entity VALUES(PAGOPA_SQ_ENTITY_ID.nextval, 'BANCA MOCK S.P.A', null, 0, FROM_TZ(TIMESTAMP '2020-06-17 07:00:00', 'Europe/Berlin'), FROM_TZ(TIMESTAMP '2020-06-17 07:00:00', 'Europe/Berlin'), null, 'PSP');
 INSERT INTO pagopa_ma_entity VALUES(PAGOPA_SQ_ENTITY_ID.nextval, 'BANCA MOCK 2 S.P.A', null, 0, FROM_TZ(TIMESTAMP '2020-06-17 07:00:00', 'Europe/Berlin'), FROM_TZ(TIMESTAMP '2020-06-17 07:00:00', 'Europe/Berlin'), null, 'PSP');
 INSERT INTO pagopa_ma_entity VALUES(PAGOPA_SQ_ENTITY_ID.nextval, 'BANCA STELLA S.P.A.', null, 0, FROM_TZ(TIMESTAMP '2020-06-18 07:00:00', 'Europe/Berlin'), FROM_TZ(TIMESTAMP '2020-06-18 07:00:00', 'Europe/Berlin'), null, 'PSP');
+INSERT INTO pagopa_ma_entity VALUES(PAGOPA_SQ_ENTITY_ID.nextval, 'BANCA BATCH S.P.A.', null, 0, FROM_TZ(TIMESTAMP '2020-06-18 07:00:00', 'Europe/Berlin'), FROM_TZ(TIMESTAMP '2020-06-18 07:00:00', 'Europe/Berlin'), null, 'PSP');
 COMMIT;
 
 INSERT INTO pagopa_ma_psp VALUES(1, '00000', 'IT', 'MOCKITMBXXX', 'IBAN', 0, null);
