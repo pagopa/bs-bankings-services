@@ -40,5 +40,5 @@ INSERT INTO pagopa_ma_service_binding VALUES(PAGOPA_SQ_SBI_ID.nextval, FROM_TZ(T
 INSERT INTO pagopa_ma_service_binding VALUES(PAGOPA_SQ_SBI_ID.nextval, FROM_TZ(TIMESTAMP '2021-02-18 07:00:01', 'Europe/Berlin'), null, 2, 3, 2);
 INSERT INTO pagopa_ma_service_binding VALUES(PAGOPA_SQ_SBI_ID.nextval, FROM_TZ(TIMESTAMP '2021-02-18 07:00:01', 'Europe/Berlin'), null, 3, 4, 2);
 
-INSERT INTO pagopa_ma_service_binding VALUES(PAGOPA_SQ_SBI_ID.nextval, FROM_TZ(TIMESTAMP '2021-02-18 07:00:01', 'Europe/Berlin'), null, 4, 5, 2);
+INSERT INTO pagopa_ma_service_binding VALUES(PAGOPA_SQ_SBI_ID.nextval, FROM_TZ(TIMESTAMP '2021-02-18 07:00:01', 'Europe/Berlin'), null, 4, 5, 1);
 COMMIT;
