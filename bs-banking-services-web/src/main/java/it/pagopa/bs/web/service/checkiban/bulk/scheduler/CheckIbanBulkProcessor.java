@@ -237,6 +237,7 @@ public class CheckIbanBulkProcessor {
                 return sb;
             }
         } catch(DetailedExceptionWrapper e) {
+            log.warn(e);
             return null;
         }
 

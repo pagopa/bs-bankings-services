@@ -98,16 +98,19 @@ public class CheckIbanBulkBatchHandler {
 
             writeIfPossible(batchConnector, batchSouthConfig, maxRecords, writeCutoffTime);
             readIfPossible(batchConnector, batchSouthConfig, readCutoffTime);
+
+            log.info("finished reading / writing for BATCH connector: ", batchSouthConfig.getConnectorName());
         }
     }
 
     private void writeIfPossible(ABatchConnector batchConnector, SouthConfig batchSouthConfig, int maxRecords, LocalTime writeCutoffTime) {
 
+        // TODO: uncomment before going live
         // only writes after cutoff at the end of day, to group together more bulk requests in one file
-        if(LocalTime.now().isBefore(writeCutoffTime) || !batchConnector.isOutFolderEmpty()) {
+        /*if(LocalTime.now().isBefore(writeCutoffTime) || !batchConnector.isOutFolderEmpty()) {
             log.info("Not time to write BATCH file / folder not empty ...");
             return;
-        }
+        }*/
 
         List<String> bulkRequestIds = batchRegistryMapper.getOldestPendingBatchIdsBeforeCutoff(
                 batchSouthConfig.getSouthConfigCode(),
@@ -141,10 +144,11 @@ public class CheckIbanBulkBatchHandler {
 
     private void readIfPossible(ABatchConnector batchConnector, SouthConfig batchSouthConfig, LocalTime readCutoffTime) {
 
-        if(LocalTime.now().isBefore(readCutoffTime) || batchConnector.isInFolderEmpty()) {
+        // TODO: uncomment before going live
+        /*if(LocalTime.now().isBefore(readCutoffTime) || batchConnector.isInFolderEmpty()) {
             log.info("Not time to read BATCH file / empty folder ...");
             return;
-        }
+        }*/
 
         log.debug("reading ...");
 
