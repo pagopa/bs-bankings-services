@@ -24,4 +24,6 @@ public class SouthConfig implements Serializable {
     private String modelConfig;
     private ZonedDateTime createdDatetime;
     private ZonedDateTime updatedDatetime;
+
+    private int resultCount; // for technical reasons
 }

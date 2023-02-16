@@ -21,4 +21,6 @@ public class PagoPaService implements Serializable {
     private String description;
     private ZonedDateTime createdDatetime;
     private ZonedDateTime updatedDatetime;
+
+    private int resultCount; // for technical reasons
 }

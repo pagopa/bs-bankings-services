@@ -23,4 +23,6 @@ public class Institution implements Serializable {
     private String fiscalCode;
     private ZonedDateTime createdDatetime;
     private ZonedDateTime updatedDatetime;
+
+    private int resultCount; // for technical reasons
 }

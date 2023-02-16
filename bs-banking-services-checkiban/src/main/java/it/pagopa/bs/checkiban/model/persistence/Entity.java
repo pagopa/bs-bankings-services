@@ -21,4 +21,6 @@ public class Entity implements Serializable {
     private EntityType type;
     private ZonedDateTime createdDatetime;
     private ZonedDateTime updatedDatetime;
+
+    private int resultCount; // for technical reasons
 }

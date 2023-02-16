@@ -21,4 +21,6 @@ public class ServiceBinding implements Serializable {
     private Psp psp;
     private SouthConfig southConfig;
     private PagoPaService service;
+
+    private int resultCount; // for technical reasons
 }
