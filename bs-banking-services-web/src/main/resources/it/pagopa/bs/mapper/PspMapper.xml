@@ -64,7 +64,7 @@
                 <property name="__column" value="${__prefix}psp_account_value_type"/>
                 <property name="__filter" value="${__field}.accountValueType"/>
             </include>
-            <include refid="CoreUtils.fieldSearchCondition">
+            <include refid="CoreUtils.booleanSearchCondition">
                 <property name="__column" value="${__prefix}psp_is_blacklisted"/>
                 <property name="__filter" value="${__field}.blacklisted"/>
             </include>

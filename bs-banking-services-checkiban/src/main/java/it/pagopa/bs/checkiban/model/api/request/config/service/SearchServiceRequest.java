@@ -17,6 +17,12 @@ import lombok.NoArgsConstructor;
 public class SearchServiceRequest {
 
     @Valid
+    private FieldSearchCriteria<String> serviceId;
+
+    @Valid
+    private FieldSearchCriteria<String> description;
+
+    @Valid
     private FieldSearchCriteria<ServiceCode> serviceCode;
 
     @Valid

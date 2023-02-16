@@ -8,6 +8,7 @@ import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.SearchPspReque
 import it.pagopa.bs.checkiban.model.api.request.config.service.SearchServiceRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.SearchSouthConfigRequest;
 import it.pagopa.bs.common.model.api.request.criteria.BooleanSearchCriteria;
+import it.pagopa.bs.common.model.api.request.criteria.FieldSearchCriteria;
 import it.pagopa.bs.common.model.api.request.criteria.RangeSearchCriteria;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchServiceBindingRequest {
+
+    @Valid
+    private FieldSearchCriteria<String> serviceBindingId;
 
     @Valid
     private BooleanSearchCriteria includeHistory;

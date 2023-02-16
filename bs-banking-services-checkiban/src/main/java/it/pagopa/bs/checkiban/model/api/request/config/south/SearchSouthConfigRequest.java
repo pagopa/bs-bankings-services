@@ -3,7 +3,6 @@ package it.pagopa.bs.checkiban.model.api.request.config.south;
 import java.time.ZonedDateTime;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Size;
 
 import it.pagopa.bs.common.model.api.request.criteria.FieldSearchCriteria;
 import it.pagopa.bs.common.model.api.request.criteria.RangeSearchCriteria;
@@ -15,6 +14,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchSouthConfigRequest {
+
+    @Valid
+    private FieldSearchCriteria<String> southConfigId;
+
+    @Valid
+    private FieldSearchCriteria<String> description;
 
     @Valid
     private FieldSearchCriteria<String> southConfigCode;

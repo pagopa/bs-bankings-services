@@ -16,6 +16,9 @@ import lombok.NoArgsConstructor;
 public class SearchInstitutionRequest {
 
     @Valid
+    private FieldSearchCriteria<String> institutionId;
+
+    @Valid
     private FieldSearchCriteria<String> name;
 
     @Valid
@@ -23,6 +26,9 @@ public class SearchInstitutionRequest {
 
     @Valid
     private FieldSearchCriteria<String> cdcCode;
+
+    @Valid
+    private FieldSearchCriteria<String> cdcDescription;
 
     @Valid
     private FieldSearchCriteria<String> credentialId;

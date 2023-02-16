@@ -23,6 +23,9 @@ import lombok.experimental.SuperBuilder;
 public class SearchPspRequest extends SearchEntityRequest {
 
     @Valid
+    private FieldSearchCriteria<String> pspId;
+
+    @Valid
     private FieldSearchCriteria<String> nationalCode;
 
     @Valid
