@@ -2,12 +2,10 @@ package it.pagopa.bs.checkiban.model.api.request.config.south.batch;
 
 import java.time.LocalTime;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import javax.validation.Valid;
 
 import it.pagopa.bs.checkiban.model.api.request.config.south.SearchSouthConfigRequest;
-import it.pagopa.bs.common.deserializer.LocalTimeDeserializer;
-import it.pagopa.bs.common.serializer.LocalTimeSerializer;
+import it.pagopa.bs.common.model.api.request.criteria.RangeSearchCriteria;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,6 +17,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class SearchPspBatchStandardSouthConfigRequest extends SearchSouthConfigRequest {
 
+    @Valid
     private ModelConfig modelConfig;
 
     @Data
@@ -26,14 +25,13 @@ public class SearchPspBatchStandardSouthConfigRequest extends SearchSouthConfigR
     @AllArgsConstructor
     public static class ModelConfig {
 
-        private int maxRecords;
+        @Valid
+        private RangeSearchCriteria<Integer> maxRecords;
 
-        @JsonSerialize(using = LocalTimeSerializer.class)
-        @JsonDeserialize(using = LocalTimeDeserializer.class)
-        private LocalTime writeCutoffTime;
+        @Valid
+        private RangeSearchCriteria<LocalTime> writeCutoffTime;
 
-        @JsonSerialize(using = LocalTimeSerializer.class)
-        @JsonDeserialize(using = LocalTimeDeserializer.class)
-        private LocalTime readCutoffTime;
+        @Valid
+        private RangeSearchCriteria<LocalTime> readCutoffTime;
     }
 }

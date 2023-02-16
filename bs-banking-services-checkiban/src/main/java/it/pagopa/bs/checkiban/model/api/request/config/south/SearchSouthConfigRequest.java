@@ -1,9 +1,12 @@
 package it.pagopa.bs.checkiban.model.api.request.config.south;
 
+import java.time.ZonedDateTime;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
-import it.pagopa.bs.checkiban.model.api.shared.DateTimeRange;
+import it.pagopa.bs.common.model.api.request.criteria.FieldSearchCriteria;
+import it.pagopa.bs.common.model.api.request.criteria.RangeSearchCriteria;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,14 +16,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SearchSouthConfigRequest {
 
-    @Size(max = 50)
-    private String southConfigCode;
-
-    @Size(max = 50)
-    private String connectorName;
-
-    private long modelVersion;
+    @Valid
+    private FieldSearchCriteria<String> southConfigCode;
 
     @Valid
-    private DateTimeRange createdDatetimeRange = new DateTimeRange();
+    private FieldSearchCriteria<String> connectorName;
+
+    @Valid
+    private RangeSearchCriteria<Long> modelVersion;
+
+    @Valid
+    private RangeSearchCriteria<ZonedDateTime> createdDatetime;
+
+    @Valid
+    private RangeSearchCriteria<ZonedDateTime> updatedDatetime;
 }

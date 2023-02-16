@@ -1,12 +1,14 @@
 package it.pagopa.bs.checkiban.model.api.request.config.entity.psp;
 
-import javax.validation.constraints.Size;
+import javax.validation.Valid;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import it.pagopa.bs.checkiban.enumeration.AccountValueType;
 import it.pagopa.bs.checkiban.model.api.request.config.entity.SearchEntityRequest;
 import it.pagopa.bs.common.enumeration.CountryCode;
+import it.pagopa.bs.common.model.api.request.criteria.BooleanSearchCriteria;
+import it.pagopa.bs.common.model.api.request.criteria.FieldSearchCriteria;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,16 +22,19 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class SearchPspRequest extends SearchEntityRequest {
 
-    @Size(max = 20)
-    private String nationalCode;
+    @Valid
+    private FieldSearchCriteria<String> nationalCode;
 
-    private CountryCode countryCode;
+    @Valid
+    private FieldSearchCriteria<CountryCode> countryCode;
 
-    @Size(max = 11)
-    private String bicCode;
+    @Valid
+    private FieldSearchCriteria<String> bicCode;
 
+    @Valid
     @JsonProperty(value = "isBlacklisted")
-    private boolean blacklisted;
+    private BooleanSearchCriteria blacklisted;
 
-    private AccountValueType accountValueType;
+    @Valid
+    private FieldSearchCriteria<AccountValueType> accountValueType;
 }

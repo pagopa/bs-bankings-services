@@ -1,9 +1,11 @@
 package it.pagopa.bs.checkiban.model.api.request.config.institution;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import java.time.ZonedDateTime;
 
-import it.pagopa.bs.checkiban.model.api.shared.DateTimeRange;
+import javax.validation.Valid;
+
+import it.pagopa.bs.common.model.api.request.criteria.FieldSearchCriteria;
+import it.pagopa.bs.common.model.api.request.criteria.RangeSearchCriteria;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,21 +15,24 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SearchInstitutionRequest {
 
-    @Size(max = 255)
-    private String name;
-
-    @Size(max = 100)
-    private String institutionCode;
-
-    @Size(max = 50)
-    private String cdcCode;
-
-    @Size(max = 50)
-    private String credentialId;
-
-    @Size(max = 100)
-    private String fiscalCode;
+    @Valid
+    private FieldSearchCriteria<String> name;
 
     @Valid
-    private DateTimeRange createdDatetimeRange = new DateTimeRange();
+    private FieldSearchCriteria<String> institutionCode;
+
+    @Valid
+    private FieldSearchCriteria<String> cdcCode;
+
+    @Valid
+    private FieldSearchCriteria<String> credentialId;
+
+    @Valid
+    private FieldSearchCriteria<String> fiscalCode;
+
+    @Valid
+    private RangeSearchCriteria<ZonedDateTime> createdDatetime;
+
+    @Valid
+    private RangeSearchCriteria<ZonedDateTime> updatedDatetime;
 }

@@ -1,11 +1,14 @@
 package it.pagopa.bs.checkiban.model.api.request.config.binding;
 
+import java.time.ZonedDateTime;
+
 import javax.validation.Valid;
 
 import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.SearchPspRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.service.SearchServiceRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.SearchSouthConfigRequest;
-import it.pagopa.bs.checkiban.model.api.shared.DateTimeRange;
+import it.pagopa.bs.common.model.api.request.criteria.BooleanSearchCriteria;
+import it.pagopa.bs.common.model.api.request.criteria.RangeSearchCriteria;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +18,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SearchServiceBindingRequest {
 
-    private boolean includeHistory;
+    @Valid
+    private BooleanSearchCriteria includeHistory;
 
     @Valid
     private SearchPspRequest psp;
@@ -27,5 +31,5 @@ public class SearchServiceBindingRequest {
     private SearchSouthConfigRequest southConfig;
 
     @Valid
-    private DateTimeRange validityStartedDatetimeRange = new DateTimeRange();
+    private RangeSearchCriteria<ZonedDateTime> validityStartedDatetime;
 }
