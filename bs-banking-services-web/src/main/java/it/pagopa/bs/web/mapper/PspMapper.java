@@ -6,20 +6,19 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.SearchPspRequest;
 import it.pagopa.bs.checkiban.model.persistence.Psp;
-import it.pagopa.bs.checkiban.model.persistence.filter.PspFilter;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 
 @Mapper
 public interface PspMapper {
     
     List<Psp> search(
-            @Param("filter") PspFilter filter,
+            @Param("filter") SearchPspRequest filter,
+            @Param("entitySortingItems") List<SortingModel> entitySortingItems,
+            @Param("pspSortingItems") List<SortingModel> pspSortingItems,
             @Param("offset") int offset,
             @Param("limit") int limit
-    );
-
-    int searchCount(
-            @Param("filter") PspFilter filter
     );
 
     Psp getOneById(long pspId);

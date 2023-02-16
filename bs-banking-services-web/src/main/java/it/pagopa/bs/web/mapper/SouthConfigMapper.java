@@ -5,43 +5,35 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import it.pagopa.bs.checkiban.model.api.request.config.south.api.SearchPspApiStandardSouthConfigRequest;
+import it.pagopa.bs.checkiban.model.api.request.config.south.batch.SearchPspBatchStandardSouthConfigRequest;
+import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.SearchServiceProviderApiStandardSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.persistence.SouthConfig;
-import it.pagopa.bs.checkiban.model.persistence.filter.PspApiStandardSouthConfigFilter;
-import it.pagopa.bs.checkiban.model.persistence.filter.PspBatchStandardSouthConfigFilter;
-import it.pagopa.bs.checkiban.model.persistence.filter.ServiceProviderApiStandardSouthConfigFilter;
 import it.pagopa.bs.common.enumeration.ConnectorType;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 
 @Mapper
 public interface SouthConfigMapper {
     
     List<SouthConfig> searchPspApiStandard(
-            @Param("filter") PspApiStandardSouthConfigFilter filter,
+            @Param("filter") SearchPspApiStandardSouthConfigRequest filter,
+            @Param("sortingItems") List<SortingModel> sortingItems,
             @Param("offset") int offset,
             @Param("limit") int limit
-    );
-
-    int searchCountPspApiStandard(
-            @Param("filter") PspApiStandardSouthConfigFilter filter
     );
 
     List<SouthConfig> searchPspBatchStandard(
-            @Param("filter") PspBatchStandardSouthConfigFilter internalFilter,
+            @Param("filter") SearchPspBatchStandardSouthConfigRequest internalFilter,
+            @Param("sortingItems") List<SortingModel> sortingItems,
             @Param("offset") int offset,
             @Param("limit") int limit
-    );
-
-    int searchCountPspBatchStandard(
-            @Param("filter") PspBatchStandardSouthConfigFilter internalFilter
     );
 
     List<SouthConfig> searchServiceProviderApiStandard(
-            @Param("filter") ServiceProviderApiStandardSouthConfigFilter filter,
+            @Param("filter") SearchServiceProviderApiStandardSouthConfigRequest filter,
+            @Param("sortingItems") List<SortingModel> sortingItems,
             @Param("offset") int offset,
             @Param("limit") int limit
-    );
-
-    int searchCountServiceProviderApiStandard(
-            @Param("filter") ServiceProviderApiStandardSouthConfigFilter filter
     );
 
     int createOne(@Param("config") SouthConfig config);

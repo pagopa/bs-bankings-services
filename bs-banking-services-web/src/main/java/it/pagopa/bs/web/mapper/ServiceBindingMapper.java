@@ -5,22 +5,22 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import it.pagopa.bs.checkiban.model.api.request.config.binding.SearchServiceBindingRequest;
 import it.pagopa.bs.checkiban.model.persistence.ServiceBinding;
 import it.pagopa.bs.checkiban.model.persistence.SouthConfig;
-import it.pagopa.bs.checkiban.model.persistence.filter.ServiceBindingFilter;
 import it.pagopa.bs.common.enumeration.ConnectorType;
 import it.pagopa.bs.common.enumeration.ServiceCode;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 
 @Mapper
 public interface ServiceBindingMapper {
     
     List<ServiceBinding> searchPspServiceBinding(
-            @Param("filter") ServiceBindingFilter filter,
+            @Param("filter") SearchServiceBindingRequest filter,
+            @Param("sortingItems") List<SortingModel> sortingItems,
             @Param("offset") int offset,
             @Param("limit") int limit
     );
-
-    int searchPspServiceBindingCount(@Param("filter") ServiceBindingFilter filter);
 
     int bindService(@Param("serviceBinding") ServiceBinding serviceBinding);
 

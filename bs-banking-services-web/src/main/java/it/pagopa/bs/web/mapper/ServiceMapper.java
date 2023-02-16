@@ -5,20 +5,18 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import it.pagopa.bs.checkiban.model.api.request.config.service.SearchServiceRequest;
 import it.pagopa.bs.checkiban.model.persistence.PagoPaService;
-import it.pagopa.bs.checkiban.model.persistence.filter.ServiceFilter;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 
 @Mapper
 public interface ServiceMapper {
     
     List<PagoPaService> search(
-            @Param("filter") ServiceFilter filter,
+            @Param("filter") SearchServiceRequest filter,
+            @Param("sortingItems") List<SortingModel> entitySortingItems,
             @Param("offset") int offset,
             @Param("limit") int limit
-    );
-
-    int searchCount(
-            @Param("filter") ServiceFilter filter
     );
 
     int createOne(@Param("service") PagoPaService service);
