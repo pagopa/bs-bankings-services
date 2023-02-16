@@ -15,4 +15,15 @@ public class PaginationUtil {
 
         return paginationModel;
     }
+
+    public static PaginationModel validOrDefault(PaginationModel requestPaginationModel) {
+        if (requestPaginationModel != null) {
+            return requestPaginationModel;
+        } else {
+            PaginationModel paginationModel = new PaginationModel();
+            paginationModel.setOffset(0L);
+            paginationModel.setLimit(20L);
+            return paginationModel;
+        }
+    }
 }
