@@ -13,18 +13,21 @@ import it.pagopa.bs.checkiban.model.persistence.PagoPaService;
 import it.pagopa.bs.checkiban.model.persistence.Psp;
 import it.pagopa.bs.checkiban.model.persistence.ServiceBinding;
 import it.pagopa.bs.checkiban.model.persistence.SouthConfig;
-import it.pagopa.bs.checkiban.model.persistence.filter.ServiceBindingFilter;
 import it.pagopa.bs.common.exception.BadRequestException;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;
+import it.pagopa.bs.common.model.api.request.SearchRequest;
 import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.shared.PaginationModel;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 import it.pagopa.bs.common.util.PaginationUtil;
+import it.pagopa.bs.common.util.SortingUtil;
 import it.pagopa.bs.common.util.parser.IdentifierUtil;
 import it.pagopa.bs.web.mapper.PspMapper;
 import it.pagopa.bs.web.mapper.ServiceBindingMapper;
 import it.pagopa.bs.web.mapper.ServiceMapper;
 import it.pagopa.bs.web.mapper.SouthConfigMapper;
+import it.pagopa.bs.web.service.sorting.ServiceBindingSortableFields;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -41,36 +44,38 @@ public class ServiceBindingService {
 
     private static final String MISSING_ENTITY_MESSAGE = "Entity bound to service with southbound configuration";
 
+    private final ServiceBindingSortableFields sortableFields;
+
     public Mono<ListResponseModel<ServiceBindingResponse>> searchServiceBindings(
-            SearchServiceBindingRequest filter,
-            int offset,
-            int limit,
-            boolean verbosePagination
+            SearchRequest<SearchServiceBindingRequest> request
     ) {
-        ServiceBindingFilter internalFilter = map(filter);
+        request.setPagination(PaginationUtil.validOrDefault(request.getPagination()));
 
-        List<ServiceBinding> serviceBindingList = serviceBindings.searchPspServiceBinding(internalFilter, offset, limit);
-        List<ServiceBindingResponse> mappedServiceBindings = serviceBindingList.stream().map(this::map).collect(Collectors.toList());
+        final List<SortingModel> sortingItems = SortingUtil.convertSortingFieldsToColumns(
+                request.getSorting(),
+                "serviceBindingId",
+                sortableFields
+        );
 
-        PaginationModel paginationModel = null;
-        if(verbosePagination) {
-            paginationModel = PaginationUtil.buildPaginationModel(
-                    offset, limit, serviceBindings.searchPspServiceBindingCount(internalFilter)
-            );
+        if(sortingItems.isEmpty()) {
+            return Mono.error(new BadRequestException("Invalid sorting field provided"));
         }
 
-        return Mono.just(new ListResponseModel<>(mappedServiceBindings, paginationModel));
-    }
+        List<ServiceBinding> serviceBindingList = serviceBindings.searchPspServiceBinding(
+                request.getFilter(),
+                sortingItems,
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit()
+        );
 
-    private ServiceBindingFilter map(SearchServiceBindingRequest filter) {
-        return ServiceBindingFilter.builder()
-                .includeHistory(filter.isIncludeHistory())
-                .psp((filter.getPsp() != null) ? PspEntityService.map(filter.getPsp()) : null)
-                .service((filter.getService() != null) ? ServiceService.map(filter.getService()) : null)
-                .southConfig((filter.getSouthConfig() != null) ? SouthConfigService.map(filter.getSouthConfig()) : null)
-                .validityStartedFromDatetime(filter.getValidityStartedDatetimeRange().getFromDatetime())
-                .validityStartedToDatetime(filter.getValidityStartedDatetimeRange().getToDatetime())
-                .build();
+        PaginationModel paginationModel = PaginationUtil.buildPaginationModel(
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit(),
+                (serviceBindingList.isEmpty()) ? 0 : serviceBindingList.get(0).getResultCount()
+        );
+
+        List<ServiceBindingResponse> mappedServiceBindings = serviceBindingList.stream().map(this::map).collect(Collectors.toList());
+        return Mono.just(new ListResponseModel<>(mappedServiceBindings, paginationModel, request.getSorting()));
     }
 
     public Mono<ServiceBindingResponse> getServiceBinding(

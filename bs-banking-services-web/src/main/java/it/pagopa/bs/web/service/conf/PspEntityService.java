@@ -16,18 +16,23 @@ import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.UpdatePspReque
 import it.pagopa.bs.checkiban.model.api.response.config.entity.psp.PspResponse;
 import it.pagopa.bs.checkiban.model.persistence.Entity;
 import it.pagopa.bs.checkiban.model.persistence.Psp;
-import it.pagopa.bs.checkiban.model.persistence.filter.PspFilter;
 import it.pagopa.bs.common.enumeration.CountryCode;
+import it.pagopa.bs.common.exception.BadRequestException;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;
+import it.pagopa.bs.common.model.api.request.SearchRequest;
 import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.shared.PaginationModel;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 import it.pagopa.bs.common.util.PaginationUtil;
+import it.pagopa.bs.common.util.SortingUtil;
 import it.pagopa.bs.common.util.parser.EnumUtil;
 import it.pagopa.bs.common.util.parser.IdentifierUtil;
 import it.pagopa.bs.web.mapper.EntityMapper;
 import it.pagopa.bs.web.mapper.PspMapper;
 import it.pagopa.bs.web.mapper.ServiceBindingMapper;
+import it.pagopa.bs.web.service.sorting.EntitySortableFields;
+import it.pagopa.bs.web.service.sorting.PspEntitySortableFields;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -41,25 +46,46 @@ public class PspEntityService {
     private final PspMapper psps;
     private final ServiceBindingMapper serviceBindingMapper;
 
+    private final EntitySortableFields sortableFields;
+    private final PspEntitySortableFields pspSortableFields;
+
     public Mono<ListResponseModel<PspResponse>> searchPspEntity(
-            SearchPspRequest filter,
-            int offset,
-            int limit,
-            boolean verbosePagination
+            SearchRequest<SearchPspRequest> request
     ) {
-        PspFilter internalFilter = map(filter);
+        request.setPagination(PaginationUtil.validOrDefault(request.getPagination()));
 
-        List<Psp> services = psps.search(internalFilter, offset, limit);
-        List<PspResponse> mappedPsps = services.stream().map(PspEntityService::map).collect(Collectors.toList());
+        final List<SortingModel> sortingItems = SortingUtil.convertSortingFieldsToColumns(
+                request.getSorting(),
+                "entityId",
+                sortableFields
+        );
 
-        PaginationModel paginationModel = null;
-        if(verbosePagination) {
-            paginationModel = PaginationUtil.buildPaginationModel(
-                    offset, limit, psps.searchCount(internalFilter)
-            );
+        final List<SortingModel> pspSortingItems = SortingUtil.convertSortingFieldsToColumns(
+                request.getSorting(),
+                "pspId",
+                pspSortableFields
+        );
+
+        if(sortingItems.isEmpty() && pspSortingItems.isEmpty()) {
+            return Mono.error(new BadRequestException("Invalid sorting field provided"));
         }
 
-        return Mono.just(new ListResponseModel<>(mappedPsps, paginationModel));
+        List<Psp> pspList = this.psps.search(
+                request.getFilter(),
+                sortingItems,
+                pspSortingItems,
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit()
+        );
+
+        PaginationModel paginationModel = PaginationUtil.buildPaginationModel(
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit(),
+                (pspList.isEmpty()) ? 0 : pspList.get(0).getResultCount()
+        );
+
+        List<PspResponse> mappedPsps = pspList.stream().map(PspEntityService::map).collect(Collectors.toList());
+        return Mono.just(new ListResponseModel<>(mappedPsps, paginationModel, request.getSorting()));
     }
 
     @Transactional
@@ -134,20 +160,6 @@ public class PspEntityService {
         entities.deleteOneById(numericPspId, deletedDatetime);
 
         return Mono.empty();
-    }
-
-    public static PspFilter map(SearchPspRequest filter) {
-        return PspFilter.builder()
-                .name(filter.getName())
-                .supportEmail(filter.getSupportEmail())
-                .nationalCode(filter.getNationalCode())
-                .countryCode(EnumUtil.tryParseEnum(CountryCode.class, filter.getCountryCode().name()))
-                .accountValueType(EnumUtil.tryParseEnum(AccountValueType.class, filter.getAccountValueType().name()))
-                .blacklisted(filter.isBlacklisted())
-                .bicCode(filter.getBicCode())
-                .createdStartDatetime(filter.getCreatedDatetimeRange().getFromDatetime())
-                .createdEndDatetime(filter.getCreatedDatetimeRange().getToDatetime())
-                .build();
     }
 
     public static PspResponse map(Psp toMap) {

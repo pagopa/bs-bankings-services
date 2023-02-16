@@ -20,6 +20,7 @@ import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.CreatePspReque
 import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.SearchPspRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.entity.psp.UpdatePspRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.entity.psp.PspResponse;
+import it.pagopa.bs.common.model.api.request.SearchRequest;
 import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
@@ -36,12 +37,9 @@ public class PspEntityController {
 
     @PostMapping("PSP/entities/search")
     public Mono<ResponseEntity<ResponseModel<ListResponseModel<PspResponse>>>> searchPspEntity(
-            @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) int offset,
-            @RequestParam(value = "limit", defaultValue = "20") @Min(1) @Max(Integer.MAX_VALUE) int limit,
-            @RequestParam(value = "verbosePagination", defaultValue = "true") boolean verbosePagination,
-            @Valid @RequestBody SearchPspRequest inputModel
+            @Valid @RequestBody SearchRequest<SearchPspRequest> inputModel
     ) {
-        return pspService.searchPspEntity(inputModel, offset, limit, verbosePagination)
+        return pspService.searchPspEntity(inputModel)
             .map(psps -> ResponseBuilder.buildResponse(psps, HttpStatus.OK));
     }
 

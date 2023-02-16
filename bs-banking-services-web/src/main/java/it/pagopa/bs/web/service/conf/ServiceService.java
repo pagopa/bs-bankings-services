@@ -12,17 +12,21 @@ import it.pagopa.bs.checkiban.model.api.request.config.service.SearchServiceRequ
 import it.pagopa.bs.checkiban.model.api.request.config.service.UpdateServiceRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.service.ServiceResponse;
 import it.pagopa.bs.checkiban.model.persistence.PagoPaService;
-import it.pagopa.bs.checkiban.model.persistence.filter.ServiceFilter;
 import it.pagopa.bs.common.enumeration.ServiceCode;
+import it.pagopa.bs.common.exception.BadRequestException;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;
+import it.pagopa.bs.common.model.api.request.SearchRequest;
 import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.shared.PaginationModel;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 import it.pagopa.bs.common.util.PaginationUtil;
+import it.pagopa.bs.common.util.SortingUtil;
 import it.pagopa.bs.common.util.parser.EnumUtil;
 import it.pagopa.bs.common.util.parser.IdentifierUtil;
 import it.pagopa.bs.web.mapper.ServiceBindingMapper;
 import it.pagopa.bs.web.mapper.ServiceMapper;
+import it.pagopa.bs.web.service.sorting.ServiceSortableFields;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -35,25 +39,38 @@ public class ServiceService {
 
     private static final String ENTITY_NAME = "Service";
 
+    private final ServiceSortableFields sortableFields;
+
     public Mono<ListResponseModel<ServiceResponse>> searchServices(
-            SearchServiceRequest filter,
-            int offset,
-            int limit,
-            boolean verbosePagination
+            SearchRequest<SearchServiceRequest> request
     ) {
-        ServiceFilter internalFilter = map(filter);
+        request.setPagination(PaginationUtil.validOrDefault(request.getPagination()));
 
-        List<PagoPaService> services = serviceMapper.search(internalFilter, offset, limit);
-        List<ServiceResponse> mappedServices = services.stream().map(ServiceService::map).collect(Collectors.toList());
+        final List<SortingModel> sortingItems = SortingUtil.convertSortingFieldsToColumns(
+                request.getSorting(),
+                "serviceId",
+                sortableFields
+        );
 
-        PaginationModel paginationModel = null;
-        if(verbosePagination) {
-            paginationModel = PaginationUtil.buildPaginationModel(
-                    offset, limit, serviceMapper.searchCount(internalFilter)
-            );
+        if(sortingItems.isEmpty()) {
+            return Mono.error(new BadRequestException("Invalid sorting field provided"));
         }
 
-        return Mono.just(new ListResponseModel<>(mappedServices, paginationModel));
+        List<PagoPaService> services = this.serviceMapper.search(
+                request.getFilter(),
+                sortingItems,
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit()
+        );
+
+        PaginationModel paginationModel = PaginationUtil.buildPaginationModel(
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit(),
+                (services.isEmpty()) ? 0 : services.get(0).getResultCount()
+        );
+
+        List<ServiceResponse> mappedServices = services.stream().map(ServiceService::map).collect(Collectors.toList());
+        return Mono.just(new ListResponseModel<>(mappedServices, paginationModel, request.getSorting()));
     }
 
     public Mono<ServiceResponse> createService(CreateServiceRequest create) {
@@ -109,14 +126,6 @@ public class ServiceService {
         serviceMapper.deleteOneById(numericSrvId);
 
         return Mono.empty();
-    }
-
-    public static ServiceFilter map(SearchServiceRequest filter) {
-        return ServiceFilter.builder()
-            .serviceCode(EnumUtil.tryParseEnum(ServiceCode.class, filter.getServiceCode().name()))
-            .createdStartDatetime(filter.getCreatedDatetimeRange().getFromDatetime())
-            .createdEndDatetime(filter.getCreatedDatetimeRange().getToDatetime())
-            .build();
     }
 
     public static ServiceResponse map(PagoPaService service) {

@@ -26,6 +26,7 @@ import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.CreateServi
 import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.SearchServiceProviderApiStandardSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.UpdateServiceProviderApiStandardSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.south.SouthConfigResponse;
+import it.pagopa.bs.common.model.api.request.SearchRequest;
 import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
@@ -42,34 +43,25 @@ public class SouthConfigController {
 
     @PostMapping("/PSP_API_STANDARD/south-configs/search")
     public Mono<ResponseEntity<ResponseModel<ListResponseModel<SouthConfigResponse>>>> searchPspApiStandardSouthConfigs(
-            @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) int offset,
-            @RequestParam(value = "limit", defaultValue = "20") @Min(1) @Max(Integer.MAX_VALUE) int limit,
-            @RequestParam(value = "verbosePagination", defaultValue = "true") boolean verbosePagination,
-            @Valid @RequestBody SearchPspApiStandardSouthConfigRequest inputModel
+            @Valid @RequestBody SearchRequest<SearchPspApiStandardSouthConfigRequest> inputModel
     ) {
-        return southConfigService.searchPspApiStandardSouthConfigs(inputModel, offset, limit, verbosePagination)
+        return southConfigService.searchPspApiStandardSouthConfigs(inputModel)
             .map(services -> ResponseBuilder.buildResponse(services, HttpStatus.OK));
     }
 
     @PostMapping("/PSP_BATCH_STANDARD/south-configs/search")
-    public Mono<ResponseEntity<ResponseModel<ListResponseModel<SouthConfigResponse>>>> searchPspApiStandardSouthConfigs(
-            @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) int offset,
-            @RequestParam(value = "limit", defaultValue = "20") @Min(1) @Max(Integer.MAX_VALUE) int limit,
-            @RequestParam(value = "verbosePagination", defaultValue = "true") boolean verbosePagination,
-            @Valid @RequestBody SearchPspBatchStandardSouthConfigRequest inputModel
+    public Mono<ResponseEntity<ResponseModel<ListResponseModel<SouthConfigResponse>>>> searchPspBatchStandardSouthConfigs(
+            @Valid @RequestBody SearchRequest<SearchPspBatchStandardSouthConfigRequest> inputModel
     ) {
-        return southConfigService.searchPspBatchStandardSouthConfigs(inputModel, offset, limit, verbosePagination)
+        return southConfigService.searchPspBatchStandardSouthConfigs(inputModel)
                 .map(services -> ResponseBuilder.buildResponse(services, HttpStatus.OK));
     }
 
     @PostMapping("/SERVICE_PROVIDER_API_STANDARD/south-configs/search")
     public Mono<ResponseEntity<ResponseModel<ListResponseModel<SouthConfigResponse>>>> searchServiceProviderApiStandardSouthConfigs(
-            @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) int offset,
-            @RequestParam(value = "limit", defaultValue = "20") @Min(1) @Max(Integer.MAX_VALUE) int limit,
-            @RequestParam(value = "verbosePagination", defaultValue = "true") boolean verbosePagination,
-            @Valid @RequestBody SearchServiceProviderApiStandardSouthConfigRequest inputModel
+            @Valid @RequestBody SearchRequest<SearchServiceProviderApiStandardSouthConfigRequest> inputModel
     ) {
-        return southConfigService.searchServiceProviderApiStandardSouthConfigs(inputModel, offset, limit, verbosePagination)
+        return southConfigService.searchServiceProviderApiStandardSouthConfigs(inputModel)
                 .map(services -> ResponseBuilder.buildResponse(services, HttpStatus.OK));
     }
 

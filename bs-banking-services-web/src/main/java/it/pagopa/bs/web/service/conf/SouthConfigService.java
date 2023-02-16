@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import it.pagopa.bs.checkiban.model.api.request.config.south.CreateSouthConfigRequest;
-import it.pagopa.bs.checkiban.model.api.request.config.south.SearchSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.UpdateSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.api.CreatePspApiStandardSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.south.api.SearchPspApiStandardSouthConfigRequest;
@@ -26,22 +25,22 @@ import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.SearchServi
 import it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.UpdateServiceProviderApiStandardSouthConfigRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.south.SouthConfigResponse;
 import it.pagopa.bs.checkiban.model.persistence.SouthConfig;
-import it.pagopa.bs.checkiban.model.persistence.filter.PspApiStandardSouthConfigFilter;
-import it.pagopa.bs.checkiban.model.persistence.filter.PspBatchStandardSouthConfigFilter;
-import it.pagopa.bs.checkiban.model.persistence.filter.ServiceProviderApiStandardSouthConfigFilter;
-import it.pagopa.bs.checkiban.model.persistence.filter.SouthConfigFilter;
 import it.pagopa.bs.common.enumeration.ConnectorType;
+import it.pagopa.bs.common.exception.BadRequestException;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ParsingException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;
+import it.pagopa.bs.common.model.api.request.SearchRequest;
 import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.shared.PaginationModel;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 import it.pagopa.bs.common.util.PaginationUtil;
-import it.pagopa.bs.common.util.TimeUtil;
+import it.pagopa.bs.common.util.SortingUtil;
 import it.pagopa.bs.common.util.parser.IdentifierUtil;
 import it.pagopa.bs.common.util.parser.JsonUtil;
 import it.pagopa.bs.web.mapper.ServiceBindingMapper;
 import it.pagopa.bs.web.mapper.SouthConfigMapper;
+import it.pagopa.bs.web.service.sorting.SouthConfigSortableFields;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -55,67 +54,90 @@ public class SouthConfigService {
     private static final String RESOURCE_NAME = "South Config";
     private static final int MODEL_VERSION = 1;
 
+    private final SouthConfigSortableFields sortableFields;
+
     public Mono<ListResponseModel<SouthConfigResponse>> searchPspApiStandardSouthConfigs(
-            SearchPspApiStandardSouthConfigRequest filter,
-            int offset,
-            int limit,
-            boolean verbosePagination
+            SearchRequest<SearchPspApiStandardSouthConfigRequest> request
     ) {
-        PspApiStandardSouthConfigFilter internalFilter = map(filter);
+        request.setPagination(PaginationUtil.validOrDefault(request.getPagination()));
+        List<SortingModel> sortingItems = checkAndReturnSortingOrThrow(request);
 
-        List<SouthConfig> services = southConfigMapper.searchPspApiStandard(internalFilter, offset, limit);
-        List<SouthConfigResponse> mappedServices = services.stream().map(SouthConfigService::map).collect(Collectors.toList());
+        List<SouthConfig> southConfigs = southConfigMapper.searchPspApiStandard(
+                request.getFilter(),
+                sortingItems,
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit()
+        );
 
-        PaginationModel paginationModel = null;
-        if(verbosePagination) {
-            paginationModel = PaginationUtil.buildPaginationModel(
-                    offset, limit, southConfigMapper.searchCountPspApiStandard(internalFilter)
-            );
-        }
+        PaginationModel paginationModel = PaginationUtil.buildPaginationModel(
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit(),
+                (southConfigs.isEmpty()) ? 0 : southConfigs.get(0).getResultCount()
+        );
 
-        return Mono.just(new ListResponseModel<>(mappedServices, paginationModel));
+        List<SouthConfigResponse> mappedSouthConfigs = southConfigs.stream().map(SouthConfigService::map).collect(Collectors.toList());
+        return Mono.just(new ListResponseModel<>(mappedSouthConfigs, paginationModel, request.getSorting()));
     }
 
     public Mono<ListResponseModel<SouthConfigResponse>> searchPspBatchStandardSouthConfigs(
-            SearchPspBatchStandardSouthConfigRequest filter,
-            int offset,
-            int limit,
-            boolean verbosePagination
+            SearchRequest<SearchPspBatchStandardSouthConfigRequest> request
     ) {
-        PspBatchStandardSouthConfigFilter internalFilter = map(filter);
+        request.setPagination(PaginationUtil.validOrDefault(request.getPagination()));
+        List<SortingModel> sortingItems = checkAndReturnSortingOrThrow(request);
 
-        List<SouthConfig> services = southConfigMapper.searchPspBatchStandard(internalFilter, offset, limit);
-        List<SouthConfigResponse> mappedServices = services.stream().map(SouthConfigService::map).collect(Collectors.toList());
+        List<SouthConfig> southConfigs = southConfigMapper.searchPspBatchStandard(
+                request.getFilter(),
+                sortingItems,
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit()
+        );
 
-        PaginationModel paginationModel = null;
-        if(verbosePagination) {
-            paginationModel = PaginationUtil.buildPaginationModel(
-                    offset, limit, southConfigMapper.searchCountPspBatchStandard(internalFilter)
-            );
-        }
+        PaginationModel paginationModel = PaginationUtil.buildPaginationModel(
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit(),
+                (southConfigs.isEmpty()) ? 0 : southConfigs.get(0).getResultCount()
+        );
 
-        return Mono.just(new ListResponseModel<>(mappedServices, paginationModel));
+        List<SouthConfigResponse> mappedSouthConfigs = southConfigs.stream().map(SouthConfigService::map).collect(Collectors.toList());
+        return Mono.just(new ListResponseModel<>(mappedSouthConfigs, paginationModel, request.getSorting()));
     }
 
     public Mono<ListResponseModel<SouthConfigResponse>> searchServiceProviderApiStandardSouthConfigs(
-            SearchServiceProviderApiStandardSouthConfigRequest filter,
-            int offset,
-            int limit,
-            boolean verbosePagination
+            SearchRequest<SearchServiceProviderApiStandardSouthConfigRequest> request
     ) {
-        ServiceProviderApiStandardSouthConfigFilter internalFilter = map(filter);
+        request.setPagination(PaginationUtil.validOrDefault(request.getPagination()));
+        List<SortingModel> sortingItems = checkAndReturnSortingOrThrow(request);
 
-        List<SouthConfig> services = southConfigMapper.searchServiceProviderApiStandard(internalFilter, offset, limit);
-        List<SouthConfigResponse> mappedServices = services.stream().map(SouthConfigService::map).collect(Collectors.toList());
+        List<SouthConfig> southConfigs = southConfigMapper.searchServiceProviderApiStandard(
+                request.getFilter(),
+                sortingItems,
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit()
+        );
 
-        PaginationModel paginationModel = null;
-        if(verbosePagination) {
-            paginationModel = PaginationUtil.buildPaginationModel(
-                    offset, limit, southConfigMapper.searchCountServiceProviderApiStandard(internalFilter)
-            );
+        PaginationModel paginationModel = PaginationUtil.buildPaginationModel(
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit(),
+                (southConfigs.isEmpty()) ? 0 : southConfigs.get(0).getResultCount()
+        );
+
+        List<SouthConfigResponse> mappedSouthConfigs = southConfigs.stream().map(SouthConfigService::map).collect(Collectors.toList());
+        return Mono.just(new ListResponseModel<>(mappedSouthConfigs, paginationModel, request.getSorting()));
+    }
+
+    private <T> List<SortingModel> checkAndReturnSortingOrThrow(SearchRequest<T> request) {
+
+        final List<SortingModel> sortingItems = SortingUtil.convertSortingFieldsToColumns(
+                request.getSorting(),
+                "southConfigId",
+                sortableFields
+        );
+
+        if(sortingItems.isEmpty()) {
+            throw new BadRequestException("Invalid sorting field provided");
         }
 
-        return Mono.just(new ListResponseModel<>(mappedServices, paginationModel));
+        return sortingItems;
     }
 
     public Mono<SouthConfigResponse> createPspApiStandardSouthConfig(
@@ -313,68 +335,6 @@ public class SouthConfigService {
         southConfigMapper.deleteOneById(numericRcfId);
 
         return Mono.empty();
-    }
-
-    public static SouthConfigFilter map(SearchSouthConfigRequest filter) {
-        return SouthConfigFilter.builder()
-            .southConfigCode(filter.getSouthConfigCode())
-            .connectorName(filter.getConnectorName())
-            .modelVersion(filter.getModelVersion())
-            .build();
-    }
-
-    public static PspApiStandardSouthConfigFilter map(SearchPspApiStandardSouthConfigRequest filter) {
-
-        PspApiStandardSouthConfigFilter mappedFilter = PspApiStandardSouthConfigFilter.builder()
-                .southConfigCode(filter.getSouthConfigCode())
-                .connectorName(filter.getConnectorName())
-                .modelVersion(filter.getModelVersion())
-                .build();
-
-        SearchPspApiStandardSouthConfigRequest.ModelConfig modelConfig = filter.getModelConfig();
-        if(modelConfig != null) {
-            mappedFilter.setSouthPath(modelConfig.getSouthPath());
-        }
-
-        return mappedFilter;
-    }
-
-    public static PspBatchStandardSouthConfigFilter map(SearchPspBatchStandardSouthConfigRequest filter) {
-
-        PspBatchStandardSouthConfigFilter mappedFilter = PspBatchStandardSouthConfigFilter.builder()
-                .southConfigCode(filter.getSouthConfigCode())
-                .connectorName(filter.getConnectorName())
-                .modelVersion(filter.getModelVersion())
-                .build();
-
-        SearchPspBatchStandardSouthConfigRequest.ModelConfig modelConfig = filter.getModelConfig();
-        if(modelConfig != null) {
-            mappedFilter.setMaxRecords(modelConfig.getMaxRecords());
-            mappedFilter.setWriteCutoffTime(TimeUtil.toFormattedTimeString(modelConfig.getWriteCutoffTime()));
-            mappedFilter.setReadCutoffTime(TimeUtil.toFormattedTimeString(modelConfig.getReadCutoffTime()));
-        }
-
-        return mappedFilter;
-    }
-
-    public static ServiceProviderApiStandardSouthConfigFilter map(SearchServiceProviderApiStandardSouthConfigRequest filter) {
-
-        ServiceProviderApiStandardSouthConfigFilter mappedFilter =
-                ServiceProviderApiStandardSouthConfigFilter.builder()
-                    .southConfigCode(filter.getSouthConfigCode())
-                    .connectorName(filter.getConnectorName())
-                    .modelVersion(filter.getModelVersion())
-                    .build();
-
-        SearchServiceProviderApiStandardSouthConfigRequest.ModelConfig modelConfig = filter.getModelConfig();
-        if(modelConfig != null) {
-            mappedFilter.setSouthPath(modelConfig.getSouthPath());
-            mappedFilter.setIsActive(modelConfig.getIsActive());
-            mappedFilter.setIsPrivative(modelConfig.getIsPrivative());
-            mappedFilter.setHasGenericSearch(modelConfig.getHasGenericSearch());
-        }
-
-        return mappedFilter;
     }
 
     public static SouthConfigResponse map(SouthConfig config) {

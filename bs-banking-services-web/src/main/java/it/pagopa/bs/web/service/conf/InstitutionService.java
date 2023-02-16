@@ -11,14 +11,18 @@ import it.pagopa.bs.checkiban.model.api.request.config.institution.SearchInstitu
 import it.pagopa.bs.checkiban.model.api.request.config.institution.UpdateInstitutionRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.institution.InstitutionResponse;
 import it.pagopa.bs.checkiban.model.persistence.Institution;
-import it.pagopa.bs.checkiban.model.persistence.filter.InstitutionFilter;
+import it.pagopa.bs.common.exception.BadRequestException;
 import it.pagopa.bs.common.exception.DuplicateResourceException;
 import it.pagopa.bs.common.exception.ResourceNotFoundException;
+import it.pagopa.bs.common.model.api.request.SearchRequest;
 import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.shared.PaginationModel;
+import it.pagopa.bs.common.model.api.shared.SortingModel;
 import it.pagopa.bs.common.util.PaginationUtil;
+import it.pagopa.bs.common.util.SortingUtil;
 import it.pagopa.bs.common.util.parser.IdentifierUtil;
 import it.pagopa.bs.web.mapper.InstitutionMapper;
+import it.pagopa.bs.web.service.sorting.InstitutionSortableFields;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -30,28 +34,41 @@ public class InstitutionService {
 
     private static final String INSTITUTION_NAME = "Institution";
 
-    public Mono<ListResponseModel<InstitutionResponse>> searchInstitutions(
-            SearchInstitutionRequest filter,
-            int offset,
-            int limit,
-            boolean verbosePagination
-    ) {
-        InstitutionFilter internalFilter = map(filter);
+    private final InstitutionSortableFields sortableFields;
 
-        List<Institution> institutions = institutionMapper.search(internalFilter, offset, limit);
+    public Mono<ListResponseModel<InstitutionResponse>> searchInstitutions(
+            SearchRequest<SearchInstitutionRequest> request
+    ) {
+        request.setPagination(PaginationUtil.validOrDefault(request.getPagination()));
+
+        final List<SortingModel> sortingItems = SortingUtil.convertSortingFieldsToColumns(
+                request.getSorting(),
+                "institutionId",
+                sortableFields
+        );
+        if(sortingItems.isEmpty()) {
+            return Mono.error(new BadRequestException("Invalid sorting field provided"));
+        }
+
+        List<Institution> institutions = this.institutionMapper.search(
+                request.getFilter(),
+                sortingItems,
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit()
+        );
+
+        PaginationModel paginationModel = PaginationUtil.buildPaginationModel(
+                (int) request.getPagination().getOffset(),
+                (int) request.getPagination().getLimit(),
+                (institutions.isEmpty()) ? 0 : institutions.get(0).getResultCount()
+        );
+
         List<InstitutionResponse> mappedInstitutions =
                 institutions.stream()
                         .map(this::map)
                         .collect(Collectors.toList());
 
-        PaginationModel paginationModel = null;
-        if(verbosePagination) {
-            paginationModel = PaginationUtil.buildPaginationModel(
-                    offset, limit, institutionMapper.searchCount(internalFilter)
-            );
-        }
-
-        return Mono.just(new ListResponseModel<>(mappedInstitutions, paginationModel));
+        return Mono.just(new ListResponseModel<>(mappedInstitutions, paginationModel, request.getSorting()));
     }
 
     public Mono<InstitutionResponse> createInstitution(CreateInstitutionRequest create) {
@@ -103,18 +120,6 @@ public class InstitutionService {
         institutionMapper.deleteOneById(numericInsId);
 
         return Mono.empty();
-    }
-
-    private InstitutionFilter map(SearchInstitutionRequest filter) {
-        return InstitutionFilter.builder()
-            .name(filter.getName())
-            .cdcCode(filter.getCdcCode())
-            .institutionCode(filter.getInstitutionCode())
-            .credentialId(filter.getCredentialId())
-            .createdStartDatetime(filter.getCreatedDatetimeRange().getFromDatetime())
-            .createdEndDatetime(filter.getCreatedDatetimeRange().getToDatetime())
-            .fiscalCode(filter.getFiscalCode())
-            .build();
     }
 
     private InstitutionResponse map(Institution institution) {

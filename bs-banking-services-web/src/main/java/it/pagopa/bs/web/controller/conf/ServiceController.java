@@ -20,6 +20,7 @@ import it.pagopa.bs.checkiban.model.api.request.config.service.CreateServiceRequ
 import it.pagopa.bs.checkiban.model.api.request.config.service.SearchServiceRequest;
 import it.pagopa.bs.checkiban.model.api.request.config.service.UpdateServiceRequest;
 import it.pagopa.bs.checkiban.model.api.response.config.service.ServiceResponse;
+import it.pagopa.bs.common.model.api.request.SearchRequest;
 import it.pagopa.bs.common.model.api.response.ListResponseModel;
 import it.pagopa.bs.common.model.api.response.ResponseModel;
 import it.pagopa.bs.common.util.ResponseBuilder;
@@ -36,12 +37,9 @@ public class ServiceController {
 
     @PostMapping("/services/search")
     public Mono<ResponseEntity<ResponseModel<ListResponseModel<ServiceResponse>>>> searchServices(
-            @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) int offset,
-            @RequestParam(value = "limit", defaultValue = "20") @Min(1) @Max(Integer.MAX_VALUE) int limit,
-            @RequestParam(value = "verbosePagination", defaultValue = "true") boolean verbosePagination,
-            @Valid @RequestBody SearchServiceRequest inputModel
+            @Valid @RequestBody SearchRequest<SearchServiceRequest> inputModel
     ) {
-        return serviceService.searchServices(inputModel, offset, limit, verbosePagination)
+        return serviceService.searchServices(inputModel)
             .map(services -> ResponseBuilder.buildResponse(services, HttpStatus.OK));
     }
 
