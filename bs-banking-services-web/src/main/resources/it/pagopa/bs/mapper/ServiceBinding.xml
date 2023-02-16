@@ -7,6 +7,8 @@
         <result column="sbi_validity_started_datetime" property="validityStartedDatetime" />
         <result column="sbi_validity_ended_datetime" property="validityEndedDatetime" />
 
+        <result column="RESULT_COUNT" property="resultCount" />
+
         <association
                 column="sbi_entity_id"
                 property="psp"
@@ -30,146 +32,57 @@
     </resultMap>
 
     <select id="searchPspServiceBinding" resultMap="serviceBinding">
-        SELECT *
-        FROM pagopa_ma_service_binding
-             JOIN pagopa_ma_service ON srv_id = sbi_service_id
-             JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
-             JOIN pagopa_ma_entity ON en_id = sbi_entity_id
-             JOIN pagopa_ma_psp ON psp_id = en_id
+        SELECT sb.*, srv.*, scf.*, e.*, p.*, COUNT(DISTINCT sb.sbi_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_service_binding sb
+        JOIN pagopa_ma_service srv ON srv.srv_id = sb.sbi_service_id
+        JOIN pagopa_ma_south_config scf ON scf.scf_id = sb.sbi_south_config_id
+        JOIN pagopa_ma_entity e ON e.en_id = sb.sbi_entity_id
+        JOIN pagopa_ma_psp p ON p.psp_id = e.en_id
         <where>
-            <if test="filter.includeHistory == false">
-                AND sbi_validity_ended_datetime IS NULL
-                AND srv_is_deleted = 0
-                AND scf_is_deleted = 0
-                AND en_is_deleted = 0
-                AND psp_deleted_datetime_mirror IS NULL
-            </if>
-            <if test="filter.psp != null">
-                <if test="filter.psp.name != null and filter.psp.name != ''">
-                    AND UPPER(en_name) LIKE UPPER('%' || #{filter.psp.name} || '%')
-                </if>
-                <if test="filter.psp.supportEmail != null and filter.psp.supportEmail != ''">
-                    AND UPPER(en_support_email) LIKE UPPER('%' || #{filter.psp.supportEmail} || '%')
-                </if>
-                <if test="filter.psp.nationalCode != null and filter.psp.nationalCode != ''">
-                    AND UPPER(psp_national_code) LIKE UPPER('%' || #{filter.psp.nationalCode} || '%')
-                </if>
-                <if test="filter.psp.countryCode != null">
-                    AND UPPER(psp_country_code) LIKE UPPER('%' || #{filter.psp.countryCode} || '%')
-                </if>
-                <if test="filter.psp.bicCode != null and filter.psp.bicCode != ''">
-                    AND UPPER(psp_bic_code) LIKE UPPER('%' || #{filter.psp.bicCode} || '%')
-                </if>
-                <if test="filter.psp.blacklisted != null and filter.psp.blacklisted != ''">
-                    AND psp_is_blacklisted = #{filter.psp.blacklisted}
-                </if>
-                <if test="filter.psp.accountValueType != null">
-                    AND UPPER(psp_account_value_type) LIKE UPPER('%' || #{filter.psp.accountValueType} || '%')
-                </if>
-                <if test="filter.psp.createdStartDatetime != null and filter.psp.createdEndDatetime != null">
-                    AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.psp.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.psp.createdEndDatetime})
-                </if>
-            </if>
-            <if test="filter.service != null">
-                <if test="filter.service.serviceCode != null">
-                    AND UPPER(srv_service_code) LIKE UPPER('%' || #{filter.service.serviceCode} || '%')
-                </if>
-                <if test="filter.service.createdStartDatetime != null and filter.service.createdEndDatetime != null">
-                    AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.service.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.service.createdEndDatetime})
-                </if>
-            </if>
-            <if test="filter.southConfig != null">
-                <if test="filter.southConfig.southConfigCode != null and filter.southConfig.southConfigCode != ''">
-                    AND UPPER(scf_code) LIKE UPPER('%' || #{filter.southConfig.southConfigCode} || '%')
-                </if>
-                <if test="filter.southConfig.connectorName != null and filter.southConfig.connectorName != ''">
-                    AND UPPER(scf_connector_name) LIKE UPPER('%' || #{filter.southConfig.connectorName} || '%')
-                </if>
-                <if test="filter.southConfig.connectorType != null">
-                    AND UPPER(scf_connector_type) LIKE UPPER('%' || #{filter.southConfig.connectorType} || '%')
-                </if>
-                <if test="filter.southConfig.createdStartDatetime != null and filter.southConfig.createdEndDatetime != null">
-                    AND TO_TIMESTAMP_TZ(SUBSTR(scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.southConfig.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.southConfig.createdEndDatetime})
-                </if>
-                <if test="filter.validityStartedFromDatetime != null and filter.validityStartedToDatetime != null">
-                    AND TO_TIMESTAMP_TZ(SUBSTR(sbi_validity_started_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.validityStartedFromDatetime}) AND TO_TIMESTAMP_TZ(#{filter.validityStartedToDatetime})
-                </if>
-            </if>
+            <include refid="searchFilters">
+                <property name="__prefix" value="sb."/>
+                <property name="__field" value="filter"/>
+            </include>
+
+            <include refid="it.pagopa.bs.web.mapper.ServiceMapper.searchFilters">
+                <property name="__prefix" value="srv."/>
+                <property name="__field" value="filter.service"/>
+            </include>
+
+            <include refid="it.pagopa.bs.web.mapper.SouthConfigMapper.commonSearchFilters">
+                <property name="__prefix" value="scf."/>
+                <property name="__field" value="filter.southConfig"/>
+            </include>
+
+            <include refid="it.pagopa.bs.web.mapper.EntityMapper.searchFilters">
+                <property name="__prefix" value="e."/>
+                <property name="__field" value="filter.psp"/>
+            </include>
+
+            <include refid="it.pagopa.bs.web.mapper.PspMapper.searchFilters">
+                <property name="__prefix" value="p."/>
+                <property name="__field" value="filter.psp"/>
+            </include>
         </where>
-        ORDER BY sbi_id ASC
-        OFFSET #{offset} ROWS
-        FETCH NEXT #{limit} ROWS ONLY
+        <include refid="CoreUtils.multipleSorting">
+            <property name="__prefix" value="sb."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
     </select>
 
-    <select id="searchPspServiceBindingCount" resultType="int">
-        SELECT COUNT(*)
-        FROM pagopa_ma_service_binding
-             JOIN pagopa_ma_service ON srv_id = sbi_service_id
-             JOIN pagopa_ma_south_config ON scf_id = sbi_south_config_id
-             JOIN pagopa_ma_entity ON en_id = sbi_entity_id
-             JOIN pagopa_ma_psp ON psp_id = en_id
-        <where>
-            <if test="filter.includeHistory == false">
-                AND sbi_validity_ended_datetime IS NULL
-                AND srv_is_deleted = 0
-                AND scf_is_deleted = 0
-                AND en_is_deleted = 0
-                AND psp_deleted_datetime_mirror IS NULL
-            </if>
-            <if test="filter.psp != null">
-                <if test="filter.psp.name != null and filter.psp.name != ''">
-                    AND UPPER(en_name) LIKE UPPER('%' || #{filter.psp.name} || '%')
-                </if>
-                <if test="filter.psp.supportEmail != null and filter.psp.supportEmail != ''">
-                    AND UPPER(en_support_email) LIKE UPPER('%' || #{filter.psp.supportEmail} || '%')
-                </if>
-                <if test="filter.psp.nationalCode != null and filter.psp.nationalCode != ''">
-                    AND UPPER(psp_national_code) LIKE UPPER('%' || #{filter.psp.nationalCode} || '%')
-                </if>
-                <if test="filter.psp.countryCode != null">
-                    AND UPPER(psp_country_code) LIKE UPPER('%' || #{filter.psp.countryCode} || '%')
-                </if>
-                <if test="filter.psp.bicCode != null and filter.psp.bicCode != ''">
-                    AND UPPER(psp_bic_code) LIKE UPPER('%' || #{filter.psp.bicCode} || '%')
-                </if>
-                <if test="filter.psp.blacklisted != null and filter.psp.blacklisted != ''">
-                    AND psp_is_blacklisted = #{filter.psp.blacklisted}
-                </if>
-                <if test="filter.psp.accountValueType != null">
-                    AND UPPER(psp_account_value_type) LIKE UPPER('%' || #{filter.psp.accountValueType} || '%')
-                </if>
-                <if test="filter.psp.createdStartDatetime != null and filter.psp.createdEndDatetime != null">
-                    AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.psp.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.psp.createdEndDatetime})
-                </if>
-            </if>
-            <if test="filter.service != null">
-                <if test="filter.service.serviceCode != null">
-                    AND UPPER(srv_service_code) LIKE UPPER('%' || #{filter.service.serviceCode} || '%')
-                </if>
-                <if test="filter.service.createdStartDatetime != null and filter.service.createdEndDatetime != null">
-                    AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.service.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.service.createdEndDatetime})
-                </if>
-            </if>
-            <if test="filter.southConfig != null">
-                <if test="filter.southConfig.southConfigCode != null and filter.southConfig.southConfigCode != ''">
-                    AND UPPER(scf_code) LIKE UPPER('%' || #{filter.southConfig.southConfigCode} || '%')
-                </if>
-                <if test="filter.southConfig.connectorName != null and filter.southConfig.connectorName != ''">
-                    AND UPPER(scf_connector_name) LIKE UPPER('%' || #{filter.southConfig.connectorName} || '%')
-                </if>
-                <if test="filter.southConfig.connectorType != null">
-                    AND UPPER(scf_connector_type) LIKE UPPER('%' || #{filter.southConfig.connectorType} || '%')
-                </if>
-                <if test="filter.southConfig.createdStartDatetime != null and filter.southConfig.createdEndDatetime != null">
-                    AND TO_TIMESTAMP_TZ(SUBSTR(scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.southConfig.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.southConfig.createdEndDatetime})
-                </if>
-                <if test="filter.validityStartedFromDatetime != null and filter.validityStartedToDatetime != null">
-                    AND TO_TIMESTAMP_TZ(SUBSTR(sbi_validity_started_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.validityStartedFromDatetime}) AND TO_TIMESTAMP_TZ(#{filter.validityStartedToDatetime})
-                </if>
-            </if>
-        </where>
-        ORDER BY sbi_validity_started_datetime DESC
-    </select>
+    <sql id="searchFilters">
+        <if test="filter.includeHistory != null and filter.includeHistory.equals == false">
+            AND sbi_validity_ended_datetime IS NULL
+            AND srv_is_deleted = 0
+            AND scf_is_deleted = 0
+            AND en_is_deleted = 0
+            AND psp_deleted_datetime_mirror IS NULL
+        </if>
+        <include refid="CoreUtils.rangeSearchCondition">
+            <property name="__column" value="${__prefix}sbi_validity_started_datetime"/>
+            <property name="__filter" value="${__field}.validityStartedDatetime"/>
+        </include>
+    </sql>
 
     <insert id="bindService" useGeneratedKeys="true" keyProperty="serviceBindingId" keyColumn="sbi_id">
         INSERT INTO pagopa_ma_service_binding

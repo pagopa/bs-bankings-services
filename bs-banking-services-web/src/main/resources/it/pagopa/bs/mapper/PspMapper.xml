@@ -14,73 +14,77 @@
         <result column="psp_bic_code" property="bicCode" />
         <result column="psp_account_value_type" property="accountValueType" />
         <result column="psp_is_blacklisted" property="blacklisted" />
+
+        <result column="RESULT_COUNT" property="resultCount" />
     </resultMap>
 
     <select id="search" resultMap="psp">
-        SELECT *
-        FROM pagopa_ma_entity
-        JOIN pagopa_ma_psp ON en_id = psp_id
+        SELECT p.*, e.*, COUNT(DISTINCT p.psp_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_entity e
+        JOIN pagopa_ma_psp p ON e.en_id = p.psp_id
         <where>
-            en_is_deleted = 0
-            <if test="filter.name != null and filter.name != ''">
-                AND UPPER(en_name) LIKE UPPER('%' || #{filter.name} || '%')
-            </if>
-            <if test="filter.supportEmail != null and filter.supportEmail != ''">
-                AND UPPER(en_support_email) LIKE UPPER('%' || #{filter.supportEmail} || '%')
-            </if>
-            <if test="filter.nationalCode != null and filter.nationalCode != ''">
-                AND UPPER(psp_national_code) LIKE UPPER('%' || #{filter.nationalCode} || '%')
-            </if>
-            <if test="filter.countryCode != null">
-                AND UPPER(psp_country_code) LIKE UPPER('%' || #{filter.countryCode} || '%')
-            </if>
-            <if test="filter.bicCode != null and filter.bicCode != ''">
-                AND UPPER(psp_bic_code) LIKE UPPER('%' || #{filter.bicCode} || '%')
-            </if>
-            <if test="filter.blacklisted != null and filter.blacklisted != ''">
-                AND psp_is_blacklisted = #{filter.blacklisted}
-            </if>
-            <if test="filter.accountValueType != null">
-                AND UPPER(psp_account_value_type) LIKE UPPER('%' || #{filter.accountValueType} || '%')
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(en_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
+            <include refid="it.pagopa.bs.web.mapper.EntityMapper.searchFilters">
+                <property name="__prefix" value="e."/>
+                <property name="__field" value="filter"/>
+            </include>
+            <include refid="searchFilters">
+                <property name="__prefix" value="p."/>
+                <property name="__field" value="filter"/>
+            </include>
         </where>
-        ORDER BY psp_id ASC
-        OFFSET #{offset} ROWS
-        FETCH NEXT #{limit} ROWS ONLY
+        ORDER BY
+        <include refid="sorting">
+            <property name="__prefix" value="e."/>
+        </include>
+        <include refid="secondarySorting">
+            <property name="__prefix" value="p."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
     </select>
 
-    <select id="searchCount" resultType="int">
-        SELECT COUNT(*)
-        FROM pagopa_ma_entity
-        JOIN pagopa_ma_psp ON en_id = psp_id
-        <where>
-            en_is_deleted = 0
-            <if test="filter.name != null and filter.name != ''">
-                AND UPPER(en_name) LIKE UPPER('%' || #{filter.name} || '%')
-            </if>
-            <if test="filter.supportEmail != null and filter.supportEmail != ''">
-                AND UPPER(en_support_email) LIKE UPPER('%' || #{filter.supportEmail} || '%')
-            </if>
-            <if test="filter.nationalCode != null and filter.nationalCode != ''">
-                AND UPPER(psp_national_code) LIKE UPPER('%' || #{filter.nationalCode} || '%')
-            </if>
-            <if test="filter.countryCode != null">
-                AND UPPER(psp_country_code) LIKE UPPER('%' || #{filter.countryCode} || '%')
-            </if>
-            <if test="filter.bicCode != null and filter.bicCode != ''">
-                AND UPPER(psp_bic_code) LIKE UPPER('%' || #{filter.bicCode} || '%')
-            </if>
-            <if test="filter.blacklisted != null and filter.blacklisted != ''">
-                AND psp_is_blacklisted = #{filter.blacklisted}
-            </if>
-            <if test="filter.accountValueType != null">
-                AND UPPER(psp_account_value_type) LIKE UPPER('%' || #{filter.accountValueType} || '%')
-            </if>
-        </where>
-    </select>
+    <sql id="searchFilters">
+        <if test="${__field} != null">
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}psp_id"/>
+                <property name="__filter" value="${__field}.pspId"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}psp_national_code"/>
+                <property name="__filter" value="${__field}.nationalCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}psp_country_code"/>
+                <property name="__filter" value="${__field}.countryCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}psp_bic_code"/>
+                <property name="__filter" value="${__field}.bicCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}psp_account_value_type"/>
+                <property name="__filter" value="${__field}.accountValueType"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}psp_is_blacklisted"/>
+                <property name="__filter" value="${__field}.blacklisted"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="sorting">
+        <foreach collection="entitySortingItems" item="sortingItem" separator=",">
+            ${__prefix}${sortingItem.fieldName} ${sortingItem.direction.type}
+        </foreach>
+        <if test="entitySortingItems.size() > 0 and pspSortingItems.size() > 0"> <!-- add comma if there needs to be secondary sorting -->
+            ,
+        </if>
+    </sql>
+
+    <sql id="secondarySorting">
+        <foreach collection="pspSortingItems" item="sortingItem" separator=",">
+            ${__prefix}${sortingItem.fieldName} ${sortingItem.direction.type}
+        </foreach>
+    </sql>
 
     <select id="getOneById" resultMap="psp">
         SELECT * FROM pagopa_ma_entity

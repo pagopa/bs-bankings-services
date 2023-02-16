@@ -12,211 +12,186 @@
         <result column="scf_model_config" property="modelConfig" />
         <result column="scf_created_datetime" property="createdDatetime" />
         <result column="scf_updated_datetime" property="updatedDatetime" />
+
+        <result column="RESULT_COUNT" property="resultCount" />
     </resultMap>
 
     <select id="searchPspApiStandard" resultMap="config">
-        SELECT * FROM pagopa_ma_south_config sc
+        SELECT sc.*, COUNT(DISTINCT sc.scf_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_south_config sc
         <where>
-            AND sc.scf_is_deleted = 0
-            AND sc.scf_connector_type = 'PSP_API_STANDARD'
-            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
-                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
-            </if>
-            <if test="filter.connectorName != null and filter.connectorName != ''">
-                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
-            </if>
-            <if test="filter.modelVersion > 0">
-                AND sc.scf_model_version = #{filter.modelVersion}
-            </if>
-            <if test="filter.southPath != null and filter.southPath != ''">
-                AND UPPER(sc.scf_model_config.southPath) LIKE UPPER('%' || #{filter.southPath} || '%')
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
+            <include refid="pspApiStandardSearchFilters">
+                <property name="__prefix" value="sc."/>
+                <property name="__field" value="filter"/>
+            </include>
         </where>
-        ORDER BY scf_id ASC
-        OFFSET #{offset} ROWS
-        FETCH NEXT #{limit} ROWS ONLY
+        <include refid="CoreUtils.multipleSorting">
+            <property name="__prefix" value="sc."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
     </select>
 
-    <select id="searchCountPspApiStandard" resultType="int">
-        SELECT COUNT(*) FROM pagopa_ma_south_config sc
-        <where>
-            AND sc.scf_is_deleted = 0
-            AND sc.scf_connector_type = 'PSP_API_STANDARD'
-            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
-                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
+    <sql id="pspApiStandardSearchFilters">
+        AND ${__prefix}scf_is_deleted = 0
+        AND ${__prefix}scf_connector_type = 'PSP_API_STANDARD'
+        <if test="${__field} != null">
+            <include refid="commonSearchFilters" />
+            <if test="${__field} instanceof it.pagopa.bs.checkiban.model.api.request.config.south.api.SearchPspApiStandardSouthConfigRequest">
+                <if test="${__field}.modelConfig != null">
+                    <include refid="CoreUtils.fieldSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.southPath"/>
+                        <property name="__filter" value="${__field}.modelConfig.southPath"/>
+                    </include>
+                </if>
             </if>
-            <if test="filter.connectorName != null and filter.connectorName != ''">
-                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
-            </if>
-            <if test="filter.connectorType != null">
-                AND UPPER(sc.scf_connector_type) LIKE UPPER('%' || #{filter.connectorType} || '%')
-            </if>
-            <if test="filter.modelVersion > 0">
-                AND sc.scf_model_version = #{filter.modelVersion}
-            </if>
-            <if test="filter.southPath != null and filter.southPath != ''">
-                AND UPPER(sc.scf_model_config.southPath) LIKE UPPER('%' || #{filter.southPath} || '%')
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
-        </where>
-    </select>
-
-    <sql id="searchPspBatchFilters">
-        <where>
-            AND sc.scf_is_deleted = 0
-            AND sc.scf_connector_type = 'PSP_BATCH_STANDARD'
-            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
-                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
-            </if>
-            <if test="filter.connectorName != null and filter.connectorName != ''">
-                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
-            </if>
-            <if test="filter.modelVersion > 0">
-                AND sc.scf_model_version = #{filter.modelVersion}
-            </if>
-            <if test="filter.maxRecords > 0">
-                AND sc.scf_model_config.maxRecords = #{filter.maxRecords}
-            </if>
-
-            <if test="filter.writeCutoffTime != null">
-                AND sc.scf_model_config.writeCutoffTime = #{filter.writeCutoffTime}
-            </if>
-            <if test="filter.readCutoffTime != null">
-                AND sc.scf_model_config.readCutoffTime = #{filter.readCutoffTime}
-            </if>
-
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
-        </where>
+        </if>
     </sql>
 
     <select id="searchPspBatchStandard" resultMap="config">
-        SELECT * FROM pagopa_ma_south_config sc
-        <include refid="searchPspBatchFilters" />
-        ORDER BY scf_id ASC
-        OFFSET #{offset} ROWS
-        FETCH NEXT #{limit} ROWS ONLY
+        SELECT sc.*, COUNT(DISTINCT sc.scf_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_south_config sc
+        <where>
+            <include refid="pspBatchStandardSearchFilters">
+                <property name="__prefix" value="sc."/>
+                <property name="__field" value="filter"/>
+            </include>
+        </where>
+        <include refid="CoreUtils.multipleSorting">
+            <property name="__prefix" value="sc."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
     </select>
 
-    <select id="searchCountPspBatchStandard" resultType="int">
-        SELECT COUNT(*) FROM pagopa_ma_south_config sc
-        <include refid="searchPspBatchFilters" />
-    </select>
+    <sql id="pspBatchStandardSearchFilters">
+        AND ${__prefix}scf_is_deleted = 0
+        AND ${__prefix}scf_connector_type = 'PSP_BATCH_STANDARD'
+        <if test="${__field} != null">
+            <include refid="commonSearchFilters" />
+            <if test="${__field} instanceof it.pagopa.bs.checkiban.model.api.request.config.south.batch.SearchPspBatchStandardSouthConfigRequest">
+                <if test="${__field}.modelConfig != null">
+                    <include refid="CoreUtils.rangeSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.maxRecords"/>
+                        <property name="__filter" value="${__field}.modelConfig.maxRecords"/>
+                    </include>
+                    <include refid="CoreUtils.rangeSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.writeCutoffTime"/>
+                        <property name="__filter" value="${__field}.modelConfig.writeCutoffTime"/>
+                    </include>
+                    <include refid="CoreUtils.rangeSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.readCutoffTime"/>
+                        <property name="__filter" value="${__field}.modelConfig.readCutoffTime"/>
+                    </include>
+                </if>
+            </if>
+        </if>
+    </sql>
 
     <select id="searchServiceProviderApiStandard" resultMap="config">
-        SELECT * FROM pagopa_ma_south_config sc
+        SELECT sc.*, COUNT(DISTINCT sc.scf_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_south_config sc
         <where>
-            AND sc.scf_is_deleted = 0
-            AND sc.scf_connector_type = 'SERVICE_PROVIDER_API_STANDARD'
-            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
-                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
-            </if>
-            <if test="filter.connectorName != null and filter.connectorName != ''">
-                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
-            </if>
-            <if test="filter.modelVersion > 0">
-                AND sc.scf_model_version = #{filter.modelVersion}
-            </if>
-            <if test="filter.southPath != null and filter.southPath != ''">
-                AND UPPER(sc.scf_model_config.southPath) LIKE UPPER('%' || #{filter.southPath} || '%')
-            </if>
-            <if test="filter.hasGenericSearch != null">
-                <choose>
-                    <when test="filter.hasGenericSearch == true">
-                        AND sc.scf_model_config.hasGenericSearch = 'true'
-                    </when>
-                    <otherwise>
-                        AND sc.scf_model_config.hasGenericSearch = 'false'
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="filter.isPrivative != null">
-                <choose>
-                    <when test="filter.isPrivative == true">
-                        AND sc.scf_model_config.isPrivative = 'true'
-                    </when>
-                    <otherwise>
-                        AND sc.scf_model_config.isPrivative = 'false'
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="filter.isActive != null">
-                <choose>
-                    <when test="filter.isActive == true">
-                        AND sc.scf_model_config.isActive = 'true'
-                    </when>
-                    <otherwise>
-                        AND sc.scf_model_config.isActive = 'false'
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
+            <include refid="serviceProviderApiStandardSearchFilters">
+                <property name="__prefix" value="sc."/>
+                <property name="__field" value="filter"/>
+            </include>
         </where>
-        ORDER BY scf_id ASC
-        OFFSET #{offset} ROWS
-        FETCH NEXT #{limit} ROWS ONLY
+        <include refid="CoreUtils.multipleSorting">
+            <property name="__prefix" value="sc."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
     </select>
 
-    <select id="searchCountServiceProviderApiStandard" resultType="int">
-        SELECT COUNT(*) FROM pagopa_ma_south_config sc
-        <where>
-            AND sc.scf_is_deleted = 0
-            AND sc.scf_connector_type = 'SERVICE_PROVIDER_API_STANDARD'
-            <if test="filter.southConfigCode != null and filter.southConfigCode != ''">
-                AND UPPER(sc.scf_code) LIKE UPPER('%' || #{filter.southConfigCode} || '%')
+    <sql id="serviceProviderApiStandardSearchFilters">
+        AND ${__prefix}scf_is_deleted = 0
+        AND ${__prefix}scf_connector_type = 'SERVICE_PROVIDER_API_STANDARD'
+        <if test="${__field} != null">
+            <include refid="commonSearchFilters" />
+            <if test="${__field} instanceof it.pagopa.bs.checkiban.model.api.request.config.south.cobadge.SearchServiceProviderApiStandardSouthConfigRequest">
+                <if test="${__field}.modelConfig != null">
+                    <include refid="CoreUtils.fieldSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.southPath"/>
+                        <property name="__filter" value="${__field}.modelConfig.southPath"/>
+                    </include>
+                    <include refid="jsonBooleanSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.hasGenericSearch"/>
+                        <property name="__filter" value="${__field}.modelConfig.hasGenericSearch"/>
+                    </include>
+                    <include refid="jsonBooleanSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.isPrivative"/>
+                        <property name="__filter" value="${__field}.modelConfig.isPrivative"/>
+                    </include>
+                    <include refid="jsonBooleanSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.isActive"/>
+                        <property name="__filter" value="${__field}.modelConfig.isActive"/>
+                    </include>
+                    <include refid="jsonBooleanSearchCondition">
+                        <property name="__column" value="${__prefix}scf_model_config.isMock"/>
+                        <property name="__filter" value="${__field}.modelConfig.isMock"/>
+                    </include>
+                </if>
             </if>
-            <if test="filter.connectorName != null and filter.connectorName != ''">
-                AND UPPER(sc.scf_connector_name) LIKE UPPER('%' || #{filter.connectorName} || '%')
-            </if>
-            <if test="filter.modelVersion > 0">
-                AND sc.scf_model_version = #{filter.modelVersion}
-            </if>
-            <if test="filter.southPath != null and filter.southPath != ''">
-                AND UPPER(sc.scf_model_config.southPath) LIKE UPPER('%' || #{filter.southPath} || '%')
-            </if>
-            <if test="filter.hasGenericSearch != null">
-                <choose>
-                    <when test="filter.hasGenericSearch == true">
-                        AND sc.scf_model_config.hasGenericSearch = 'true'
-                    </when>
-                    <otherwise>
-                        AND sc.scf_model_config.hasGenericSearch = 'false'
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="filter.isPrivative != null">
-                <choose>
-                    <when test="filter.isPrivative == true">
-                        AND sc.scf_model_config.isPrivative = 'true'
-                    </when>
-                    <otherwise>
-                        AND sc.scf_model_config.isPrivative = 'false'
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="filter.isActive != null">
-                <choose>
-                    <when test="filter.isActive == true">
-                        AND sc.scf_model_config.isActive = 'true'
-                    </when>
-                    <otherwise>
-                        AND sc.scf_model_config.isActive = 'false'
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(sc.scf_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
-        </where>
-    </select>
+        </if>
+    </sql>
+
+    <sql id="jsonBooleanSearchCondition">
+        <if test="${__filter} != null">
+            <choose>
+                <!-- equals -->
+                <when test="${__filter}.equals != null">
+                    <choose>
+                        <when test="${__filter}.equals == true">
+                            AND ${__column} = 'true'
+                        </when>
+                        <otherwise>
+                            AND ${__column} = 'false'
+                        </otherwise>
+                    </choose>
+                </when>
+                <!-- empty -->
+                <when test="${__filter}.empty != null">
+                    <if test="${__filter}.empty">
+                        AND ${__column} IS NULL
+                    </if>
+                    <if test="not ${__filter}.empty">
+                        AND ${__column} IS NOT NULL
+                    </if>
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <sql id="commonSearchFilters">
+        <if test="${__field} != null">
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}scf_id"/>
+                <property name="__filter" value="${__field}.southConfigId"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}scf_code"/>
+                <property name="__filter" value="${__field}.southConfigCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}scf_description"/>
+                <property name="__filter" value="${__field}.description"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}scf_connector_name"/>
+                <property name="__filter" value="${__field}.connectorName"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}scf_model_version"/>
+                <property name="__filter" value="${__field}.modelVersion"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}scf_updated_datetime"/>
+                <property name="__filter" value="${__field}.updatedDatetime"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}scf_created_datetime"/>
+                <property name="__filter" value="${__field}.createdDatetime"/>
+            </include>
+        </if>
+    </sql>
 
     <insert id="createOne" useGeneratedKeys="true" keyProperty="southConfigId" keyColumn="scf_id">
         INSERT INTO pagopa_ma_south_config

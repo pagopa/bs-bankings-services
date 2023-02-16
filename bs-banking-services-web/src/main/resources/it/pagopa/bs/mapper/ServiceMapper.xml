@@ -8,36 +8,50 @@
         <result column="srv_service_description" property="description" />
         <result column="srv_created_datetime" property="createdDatetime" />
         <result column="srv_updated_datetime" property="updatedDatetime" />
+
+        <result column="RESULT_COUNT" property="resultCount" />
     </resultMap>
 
     <select id="search" resultMap="service">
-        SELECT * FROM pagopa_ma_service
+        SELECT srv.*, COUNT(DISTINCT srv.srv_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_service srv
         <where>
-            srv_is_deleted = 0
-            <if test="filter.serviceCode != null">
-                AND UPPER(srv_service_code) LIKE UPPER('%' || #{filter.serviceCode} || '%')
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
+            <include refid="searchFilters">
+                <property name="__prefix" value="srv."/>
+                <property name="__field" value="filter"/>
+            </include>
         </where>
-        ORDER BY srv_id ASC
-        OFFSET #{offset} ROWS
-        FETCH NEXT #{limit} ROWS ONLY
+        <include refid="CoreUtils.multipleSorting">
+            <property name="__prefix" value="srv."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
     </select>
 
-    <select id="searchCount" resultType="int">
-        SELECT COUNT(*) FROM pagopa_ma_service
-        <where>
-            srv_is_deleted = 0
-            <if test="filter.serviceCode != null">
-                AND UPPER(srv_service_code) LIKE UPPER('%' || #{filter.serviceCode} || '%')
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(srv_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
-        </where>
-    </select>
+    <sql id="searchFilters">
+        AND ${__prefix}srv_is_deleted = 0
+        <if test="${__field} != null">
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}srv_id"/>
+                <property name="__filter" value="${__field}.serviceId"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}srv_service_code"/>
+                <property name="__filter" value="${__field}.serviceCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}srv_description"/>
+                <property name="__filter" value="${__field}.description"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}srv_created_datetime"/>
+                <property name="__filter" value="${__field}.createdDatetime"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}srv_updated_datetime"/>
+                <property name="__filter" value="${__field}.updatedDatetime"/>
+            </include>
+        </if>
+    </sql>
 
     <insert id="createOne" useGeneratedKeys="true" keyProperty="serviceId" keyColumn="srv_id">
         INSERT INTO pagopa_ma_service

@@ -12,62 +12,66 @@
         <result column="ins_fiscal_code" property="fiscalCode" />
         <result column="ins_created_datetime" property="createdDatetime" />
         <result column="ins_updated_datetime" property="updatedDatetime" />
+
+        <result column="RESULT_COUNT" property="resultCount" />
     </resultMap>
 
     <select id="search" resultMap="institution">
-        SELECT * FROM pagopa_ma_institution
+        SELECT ins.*, COUNT(DISTINCT ins.ins_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_institution ins
         <where>
-            ins_is_deleted = 0
-            <if test="filter.name != null and filter.name != ''">
-                AND UPPER(ins_name) LIKE UPPER('%' || #{filter.name} || '%')
-            </if>
-            <if test="filter.institutionCode != null and filter.institutionCode != ''">
-                AND UPPER(ins_code) LIKE UPPER('%' || #{filter.institutionCode} || '%')
-            </if>
-            <if test="filter.cdcCode != null and filter.cdcCode != ''">
-                AND UPPER(ins_cdc_code) LIKE UPPER('%' || #{filter.cdcCode} || '%')
-            </if>
-            <if test="filter.credentialId != null and filter.credentialId != ''">
-                AND ins_credential_id = #{filter.credentialId}
-            </if>
-            <if test="filter.fiscalCode != null and filter.fiscalCode != ''">
-                AND UPPER(ins_fiscal_code) LIKE UPPER('%' || #{filter.fiscalCode} || '%')
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(ins_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
-            AND UPPER(ins_name) != 'TEST'
+            <include refid="searchFilters">
+                <property name="__prefix" value="ins."/>
+                <property name="__field" value="filter"/>
+            </include>
         </where>
-        ORDER BY ins_id ASC
-        OFFSET #{offset} ROWS
-        FETCH NEXT #{limit} ROWS ONLY
+        <include refid="CoreUtils.multipleSorting">
+            <property name="__prefix" value="ins."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
     </select>
 
-    <select id="searchCount" resultType="int">
-        SELECT COUNT(*) FROM pagopa_ma_institution
-        <where>
-            ins_is_deleted = 0
-            <if test="filter.name != null and filter.name != ''">
-                AND UPPER(ins_name) LIKE UPPER('%' || #{filter.name} || '%')
-            </if>
-            <if test="filter.institutionCode != null and filter.institutionCode != ''">
-                AND UPPER(ins_code) LIKE UPPER('%' || #{filter.institutionCode} || '%')
-            </if>
-            <if test="filter.cdcCode != null and filter.cdcCode != ''">
-                AND UPPER(ins_cdc_code) LIKE UPPER('%' || #{filter.cdcCode} || '%')
-            </if>
-            <if test="filter.credentialId != null and filter.credentialId != ''">
-                AND ins_credential_id = #{filter.credentialId}
-            </if>
-            <if test="filter.fiscalCode != null and filter.fiscalCode != ''">
-                AND UPPER(ins_fiscal_code) LIKE UPPER('%' || #{filter.fiscalCode} || '%')
-            </if>
-            <if test="filter.createdStartDatetime != null and filter.createdEndDatetime != null">
-                AND TO_TIMESTAMP_TZ(SUBSTR(ins_created_datetime, 0, 22)) BETWEEN TO_TIMESTAMP_TZ(#{filter.createdStartDatetime}) AND TO_TIMESTAMP_TZ(#{filter.createdEndDatetime})
-            </if>
-            AND UPPER(ins_name) != 'TEST'
-        </where>
-    </select>
+    <sql id="searchFilters">
+        AND ${__prefix}ins_is_deleted = 0
+        <if test="${__field} != null">
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_id"/>
+                <property name="__filter" value="${__field}.institutionId"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_code"/>
+                <property name="__filter" value="${__field}.institutionCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_name"/>
+                <property name="__filter" value="${__field}.name"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_cdc_code"/>
+                <property name="__filter" value="${__field}.cdcCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_cdc_description"/>
+                <property name="__filter" value="${__field}.cdcDescription"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_credential_id"/>
+                <property name="__filter" value="${__field}.credentialId"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_fiscal_code"/>
+                <property name="__filter" value="${__field}.fiscalCode"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}ins_updated_datetime"/>
+                <property name="__filter" value="${__field}.updatedDatetime"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}ins_created_datetime"/>
+                <property name="__filter" value="${__field}.createdDatetime"/>
+            </include>
+        </if>
+    </sql>
 
     <select id="getOneByCredentialId" resultMap="institution">
         SELECT * FROM pagopa_ma_institution
