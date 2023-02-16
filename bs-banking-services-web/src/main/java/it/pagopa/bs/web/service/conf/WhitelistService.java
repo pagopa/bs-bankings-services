@@ -1,6 +1,7 @@
 package it.pagopa.bs.web.service.conf;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,7 @@ import it.pagopa.bs.web.mapper.WhitelistMapper;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+// TODO: fix API
 @Service
 @RequiredArgsConstructor
 public class WhitelistService {
@@ -100,7 +102,7 @@ public class WhitelistService {
             );
         }
 
-        return Mono.just(new ListResponseModel<>(responseKeys, paginationModel));
+        return Mono.just(new ListResponseModel<>(responseKeys, paginationModel, Collections.emptyList()));
     }
 
     public Mono<WhitelistResponse> createWhitelistEntry(CreateWhitelistRequest create) {
