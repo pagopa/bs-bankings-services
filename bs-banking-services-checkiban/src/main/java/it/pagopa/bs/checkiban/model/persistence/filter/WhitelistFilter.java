@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WhitelistFilter {
 
-    private ServiceCode serviceCode;
+    private String serviceCode;
     private String responseKey;
 }

@@ -153,7 +153,7 @@ public class WhitelistService {
 
     private WhitelistFilter map(SearchWhitelistRequest filter) {
         return WhitelistFilter.builder()
-            .serviceCode(filter.getServiceCode())
+            .serviceCode(filter.getServiceCode() != null ? filter.getServiceCode().name() : null)
             .responseKey(filter.getResponseKey())
             .build();
     }
