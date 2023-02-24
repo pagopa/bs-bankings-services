@@ -4,12 +4,14 @@ import it.pagopa.bs.common.util.validator.MutuallyExclusive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 @MutuallyExclusive(
         message = "greaterThan and greaterThanEquals cannot be used together",
         value = {"greaterThan", "greaterThanEquals"})
@@ -23,4 +25,3 @@ public class RangeSearchCriteria<T> extends SearchCriteriaBase<T> {
     private T lesserThan;
     private T lesserThanEquals;
 }
-

@@ -39,30 +39,32 @@
         JOIN pagopa_ma_entity e ON e.en_id = sb.sbi_entity_id
         JOIN pagopa_ma_psp p ON p.psp_id = e.en_id
         <where>
-            <include refid="searchFilters">
-                <property name="__prefix" value="sb."/>
-                <property name="__field" value="filter"/>
-            </include>
-
-            <include refid="it.pagopa.bs.web.mapper.ServiceMapper.searchFilters">
-                <property name="__prefix" value="srv."/>
-                <property name="__field" value="filter.service"/>
-            </include>
-
-            <include refid="it.pagopa.bs.web.mapper.SouthConfigMapper.commonSearchFilters">
-                <property name="__prefix" value="scf."/>
-                <property name="__field" value="filter.southConfig"/>
-            </include>
-
-            <include refid="it.pagopa.bs.web.mapper.EntityMapper.searchFilters">
-                <property name="__prefix" value="e."/>
-                <property name="__field" value="filter.psp"/>
-            </include>
-
-            <include refid="it.pagopa.bs.web.mapper.PspMapper.searchFilters">
-                <property name="__prefix" value="p."/>
-                <property name="__field" value="filter.psp"/>
-            </include>
+            <if test="filter != null">
+                <include refid="searchFilters">
+                    <property name="__prefix" value="sb."/>
+                    <property name="__field" value="filter"/>
+                </include>
+    
+                <include refid="it.pagopa.bs.web.mapper.ServiceMapper.searchFilters">
+                    <property name="__prefix" value="srv."/>
+                    <property name="__field" value="filter.service"/>
+                </include>
+    
+                <include refid="it.pagopa.bs.web.mapper.SouthConfigMapper.commonSearchFilters">
+                    <property name="__prefix" value="scf."/>
+                    <property name="__field" value="filter.southConfig"/>
+                </include>
+    
+                <include refid="it.pagopa.bs.web.mapper.EntityMapper.searchFilters">
+                    <property name="__prefix" value="e."/>
+                    <property name="__field" value="filter.psp"/>
+                </include>
+    
+                <include refid="it.pagopa.bs.web.mapper.PspMapper.searchFilters">
+                    <property name="__prefix" value="p."/>
+                    <property name="__field" value="filter.psp"/>
+                </include>
+            </if>
         </where>
         <include refid="CoreUtils.multipleSorting">
             <property name="__prefix" value="sb."/>

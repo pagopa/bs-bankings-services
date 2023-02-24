@@ -40,5 +40,9 @@ public class SearchServiceProviderApiStandardSouthConfigRequest extends SearchSo
         @Valid
         @JsonProperty("isActive")
         private BooleanSearchCriteria isActive;
+
+        @Valid
+        @JsonProperty("isMock")
+        private BooleanSearchCriteria isMock;
     }
 }

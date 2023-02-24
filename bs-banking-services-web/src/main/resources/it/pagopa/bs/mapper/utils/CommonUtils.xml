@@ -99,22 +99,22 @@
                 <when test="${__filter}.greaterThan != null or ${__filter}.lesserThan != null">
                     <!-- greaterThan -->
                     <if test="${__filter}.greaterThan != null">
-                        AND ${__column} &gt; #{${__filter}.greaterThan}
+                        AND ${__column} &gt; #{${__filter}.greaterThan, typeHandler=it.pagopa.bs.web.handler.ToJsonStringTypeHandler}
                     </if>
                     <!-- lesserThan -->
                     <if test="${__filter}.lesserThan != null">
-                        AND ${__column} &lt; #{${__filter}.lesserThan}
+                        AND ${__column} &lt; #{${__filter}.lesserThan, typeHandler=it.pagopa.bs.web.handler.ToJsonStringTypeHandler}
                     </if>
                 </when>
                 <!-- greaterThanEquals - lesserThanEquals -->
                 <when test="${__filter}.greaterThanEquals != null or ${__filter}.lesserThanEquals != null">
                     <!-- greaterThanEquals -->
                     <if test="${__filter}.greaterThanEquals != null">
-                        AND ${__column} &gt;= #{${__filter}.greaterThanEquals}
+                        AND ${__column} &gt;= #{${__filter}.greaterThanEquals, typeHandler=it.pagopa.bs.web.handler.ToJsonStringTypeHandler}
                     </if>
                     <!-- lesserThanEquals -->
                     <if test="${__filter}.lesserThanEquals != null">
-                        AND ${__column} &lt;= #{${__filter}.lesserThanEquals}
+                        AND ${__column} &lt;= #{${__filter}.lesserThanEquals, typeHandler=it.pagopa.bs.web.handler.ToJsonStringTypeHandler}
                     </if>
                 </when>
                 <!-- empty -->
