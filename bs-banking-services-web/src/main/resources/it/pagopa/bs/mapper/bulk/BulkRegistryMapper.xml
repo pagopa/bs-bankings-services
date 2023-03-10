@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.bulk.BulkRegistryMapper">
+
+    <resultMap id="bulkRegistry" type="it.pagopa.bs.checkiban.model.persistence.BulkRegistry">
+        <id column="bur_bulk_request_id" property="bulkRequestId" />
+        <result column="bur_x_correlation_id" property="correlationId" />
+        <result column="bur_x_credential_id" property="credentialId" />
+        <result column="bur_service_code" property="serviceCode" />
+        <result column="bur_elements_processed_count" property="processedElementsCount" />
+        <result column="bur_elements_count" property="elementsCount" />
+        <result column="bur_inserted_datetime" property="insertedDatetime" />
+        <result column="bur_completed_datetime" property="completedDatetime" />
+        <result column="bur_bulk_status" property="bulkStatus" />
+        <result column="bur_has_batch_elements" property="hasBatchElements" />
+        <result column="bur_routing_time_ms" property="routingTimeMs" />
+    </resultMap>
+
+    <resultMap id="bulkRegistryWithElements" type="it.pagopa.bs.checkiban.model.persistence.BulkRegistry" extends="bulkRegistry">
+        <collection
+                property="bulkElements"
+                column="bue_bulk_request_id"
+                ofType="it.pagopa.bs.checkiban.model.persistence.BulkElement"
+                resultMap="it.pagopa.bs.web.mapper.bulk.BulkElementMapper.bulkElement"
+        />
+    </resultMap>
+
+    <resultMap id="bulkRegistryWithBatch" type="it.pagopa.bs.checkiban.model.persistence.BulkRegistry" extends="bulkRegistry">
+        <collection
+                property="batchRegistries"
+                column="bar_bulk_request_id"
+                ofType="it.pagopa.bs.checkiban.model.persistence.BatchRegistry"
+                resultMap="it.pagopa.bs.web.mapper.bulk.BatchRegistryMapper.batchRegistry"
+        />
+    </resultMap>
+
+    <resultMap id="bulkRegistryComplete" type="it.pagopa.bs.checkiban.model.persistence.BulkRegistry" extends="bulkRegistryWithElements">
+        <collection
+                property="batchRegistries"
+                column="bar_bulk_request_id"
+                ofType="it.pagopa.bs.checkiban.model.persistence.BatchRegistry"
+                resultMap="it.pagopa.bs.web.mapper.bulk.BatchRegistryMapper.batchRegistry"
+        />
+    </resultMap>
+
+    <insert id="insertBulkRegistry" useGeneratedKeys="false">
+        INSERT INTO pagopa_tr_bulk_registry
+            (
+                bur_bulk_request_id,
+                bur_x_correlation_id,
+                bur_x_credential_id,
+                bur_service_code,
+                bur_elements_processed_count,
+                bur_elements_count,
+                bur_inserted_datetime,
+                bur_bulk_status,
+                bur_has_batch_elements
+            )
+        VALUES
+            (
+                #{bulkRequestId},
+                #{correlationId},
+                #{credentialId},
+                #{serviceCode},
+                0,
+                #{elementsCount},
+                CURRENT_TIMESTAMP,
+                #{bulkStatus},
+                0
+            )
+    </insert>
+
+    <update id="setCompleted">
+        UPDATE pagopa_tr_bulk_registry br
+        <set>
+            br.bur_bulk_status = 'COMPLETED',
+            br.bur_completed_datetime = CURRENT_TIMESTAMP
+        </set>
+        WHERE br.bur_bulk_request_id = #{bulkRequestId}
+    </update>
+
+    <update id="setHasBatchElements">
+        UPDATE pagopa_tr_bulk_registry br
+        <set>
+            br.bur_has_batch_elements = 1
+        </set>
+        WHERE br.bur_bulk_request_id = #{bulkRequestId}
+    </update>
+
+    <update id="increaseProcessedElementCount">
+        UPDATE pagopa_tr_bulk_registry br
+        <set>
+            br.bur_elements_processed_count = br.bur_elements_processed_count + 1
+        </set>
+        WHERE br.bur_bulk_request_id = #{bulkRequestId}
+    </update>
+
+    <update id="completeCountAndSetCompleted">
+        UPDATE pagopa_tr_bulk_registry br
+        <set>
+            br.bur_elements_processed_count = br.bur_elements_count,
+            br.bur_bulk_status = 'COMPLETED',
+            br.bur_completed_datetime = CURRENT_TIMESTAMP
+        </set>
+        WHERE br.bur_bulk_status = 'PENDING'
+        AND (1, br.bur_bulk_request_id) IN
+        <foreach collection="bulkRequestIds" item="bulkRequestId" open="(" separator="," close=")">
+            (1, #{bulkRequestId})
+        </foreach>
+    </update>
+
+    <select id="getOldestPending" resultMap="bulkRegistryComplete" fetchSize="1000" useCache="false">
+        SELECT *
+        FROM pagopa_tr_bulk_registry
+        WHERE bur_bulk_status = 'PENDING'
+          AND bur_has_batch_elements = 0
+        ORDER BY bur_inserted_datetime ASC
+        FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <select id="getAllPendingOlderThanHours" resultMap="bulkRegistryComplete" fetchSize="1000" useCache="false">
+        SELECT *
+        FROM pagopa_tr_bulk_registry
+            LEFT JOIN pagopa_tr_batch_registry ON bar_bulk_request_id = bur_bulk_request_id
+        WHERE bur_bulk_status = 'PENDING'
+        AND
+        (
+            (bur_inserted_datetime + ((1/24) * #{hours}) &lt;= systimestamp AND bar_batch_created_datetime IS NULL AND bur_has_batch_elements = 0)
+        OR
+            (select max(bar_batch_created_datetime) from pagopa_tr_batch_registry br where br.bar_bulk_request_id = bur_bulk_request_id) + ((1/24) * #{hours}) &lt;= systimestamp
+        )
+    </select>
+
+    <select id="getAllCompletedOlderThanHours" resultType="java.lang.String" fetchSize="1000" useCache="false">
+        SELECT bur_bulk_request_id
+        FROM pagopa_tr_bulk_registry
+        WHERE bur_bulk_status = 'COMPLETED'
+          AND bur_completed_datetime + ((1/24) * #{hours}) &lt;= systimestamp
+    </select>
+
+    <select id="getWithElementsByBulkRequestId" resultMap="bulkRegistryWithElements" fetchSize="1000" useCache="false">
+        SELECT *
+        FROM pagopa_tr_bulk_registry br
+            JOIN pagopa_tr_bulk_element be ON br.bur_bulk_request_id = be.bue_bulk_request_id
+        WHERE br.bur_bulk_request_id = #{bulkRequestId}
+    </select>
+
+    <select id="getWithElementsByBulkRequestIdAndCredentialId" resultMap="bulkRegistryWithElements" fetchSize="1000" useCache="false">
+        SELECT *
+        FROM pagopa_tr_bulk_registry br
+             JOIN pagopa_tr_bulk_element be ON br.bur_bulk_request_id = be.bue_bulk_request_id
+        WHERE br.bur_bulk_request_id = #{bulkRequestId}
+        AND br.bur_x_credential_id = #{credentialId}
+    </select>
+
+    <delete id="deleteAllByBulkRequestIds">
+        DELETE FROM pagopa_tr_bulk_registry br
+        WHERE br.bur_bulk_status = 'COMPLETED'
+        AND br.bur_bulk_request_id IN
+        <foreach collection="bulkRequestIds" item="bulkRequestId" open="(" separator="," close=")">
+            #{bulkRequestId}
+        </foreach>
+    </delete>
+
+    <update id="setRoutingTimeMs">
+        UPDATE pagopa_tr_bulk_registry
+        SET bur_routing_time_ms = #{routingTimeMs}
+        WHERE bur_bulk_request_id = #{bulkRequestId}
+    </update>
+
+    <select id="getAllPendingBatchFromBatchIds" resultMap="bulkRegistryWithBatch" fetchSize="1000" useCache="false">
+        SELECT *
+        FROM pagopa_tr_bulk_registry
+            JOIN pagopa_tr_bulk_element ON bur_bulk_request_id = bue_bulk_request_id
+            JOIN pagopa_tr_batch_registry ON bur_bulk_request_id = bar_bulk_request_id
+        WHERE bur_bulk_status = 'PENDING'
+          AND bur_has_batch_elements = 1
+          AND (1, bue_batch_element_id) IN
+        <foreach collection="batchElementIds" item="batchElementId" open="(" separator="," close=")">
+            (1, LOWER(#{batchElementId}))
+        </foreach>
+    </select>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.EntityMapper">
+
+    <sql id="searchFilters">
+        AND ${__prefix}en_is_deleted = 0
+        <if test="${__field} != null">
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}en_name"/>
+                <property name="__filter" value="${__field}.name"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}en_support_email"/>
+                <property name="__filter" value="${__field}.supportEmail"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}en_created_datetime"/>
+                <property name="__filter" value="${__field}.createdDatetime"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}en_updated_datetime"/>
+                <property name="__filter" value="${__field}.updatedDatetime"/>
+            </include>
+        </if>
+    </sql>
+
+    <insert id="createOne" useGeneratedKeys="true" keyProperty="entityId" keyColumn="en_id">
+        INSERT INTO pagopa_ma_entity
+        (
+            en_id,
+            en_name,
+            en_support_email,
+            en_type,
+            en_created_datetime,
+            en_updated_datetime
+        )
+        VALUES
+        (
+            PAGOPA_SQ_ENTITY_ID.nextval,
+            #{entity.name},
+            #{entity.supportEmail},
+            #{entity.type},
+            #{entity.createdDatetime},
+            #{entity.updatedDatetime}
+        )
+    </insert>
+
+    <update id="updateOne">
+        UPDATE pagopa_ma_entity
+        <set>
+            en_updated_datetime = CURRENT_TIMESTAMP,
+            <if test="entity.name != null and entity.name != ''">
+                en_name = #{entity.name},
+            </if>
+            <if test="entity.supportEmail != null and entity.supportEmail != ''">
+                en_support_email = #{entity.supportEmail}
+            </if>
+        </set>
+        WHERE en_id = #{entityId}
+        AND en_is_deleted = 0
+    </update>
+
+    <update id="deleteOneById">
+        UPDATE pagopa_ma_entity
+        SET
+            en_is_deleted = 1,
+            en_deleted_datetime = #{entityDeletedDatetime}
+        WHERE en_id = #{entityId}
+        AND en_is_deleted = 0
+    </update>
+
+</mapper>

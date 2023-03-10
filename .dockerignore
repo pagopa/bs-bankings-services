@@ -1,0 +1,8 @@
+docker-compose.yaml
+Dockerfile
+.gitignore
+bs-banking-services-ade/target/*
+bs-banking-services-checkiban/target/*
+bs-banking-services-common/target/*
+bs-banking-services-web/target/*
+schema/*

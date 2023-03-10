@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.ServiceMapper">
+
+    <resultMap id="service" type="it.pagopa.bs.checkiban.model.persistence.PagoPaService">
+        <id column="srv_id" property="serviceId" />
+        <result column="srv_service_code" property="serviceCode" />
+        <result column="srv_service_description" property="description" />
+        <result column="srv_created_datetime" property="createdDatetime" />
+        <result column="srv_updated_datetime" property="updatedDatetime" />
+
+        <result column="RESULT_COUNT" property="resultCount" />
+    </resultMap>
+
+    <select id="search" resultMap="service">
+        SELECT srv.*, COUNT(DISTINCT srv.srv_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_service srv
+        <where>
+            <include refid="searchFilters">
+                <property name="__prefix" value="srv."/>
+                <property name="__field" value="filter"/>
+            </include>
+        </where>
+        <include refid="CoreUtils.multipleSorting">
+            <property name="__prefix" value="srv."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
+    </select>
+
+    <sql id="searchFilters">
+        AND ${__prefix}srv_is_deleted = 0
+        <if test="${__field} != null">
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}srv_id"/>
+                <property name="__filter" value="${__field}.serviceId"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}srv_service_code"/>
+                <property name="__filter" value="${__field}.serviceCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}srv_description"/>
+                <property name="__filter" value="${__field}.description"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}srv_created_datetime"/>
+                <property name="__filter" value="${__field}.createdDatetime"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}srv_updated_datetime"/>
+                <property name="__filter" value="${__field}.updatedDatetime"/>
+            </include>
+        </if>
+    </sql>
+
+    <insert id="createOne" useGeneratedKeys="true" keyProperty="serviceId" keyColumn="srv_id">
+        INSERT INTO pagopa_ma_service
+        (
+            srv_id,
+            srv_service_code,
+            srv_service_description
+        )
+        VALUES
+        (
+            PAGOPA_SQ_SRV_ID.nextval,
+            #{service.serviceCode},
+            #{service.description}
+        )
+    </insert>
+
+    <select id="getOneById" resultMap="service">
+        SELECT * FROM pagopa_ma_service
+        WHERE srv_id = #{serviceId}
+        AND srv_is_deleted = 0
+    </select>
+
+    <select id="getOneByCode" resultMap="service">
+        SELECT * FROM pagopa_ma_service
+        WHERE srv_service_code = #{serviceCode}
+        AND srv_is_deleted = 0
+    </select>
+
+    <update id="updateOne">
+        UPDATE pagopa_ma_service
+        <set>
+            srv_updated_datetime = CURRENT_TIMESTAMP,
+            <if test="service.description != null and service.description != ''">
+                srv_service_description = #{service.description},
+            </if>
+        </set>
+        WHERE srv_id = #{serviceId}
+        AND srv_is_deleted = 0
+    </update>
+
+    <update id="deleteOneById">
+        UPDATE pagopa_ma_service
+        SET
+            srv_is_deleted = 1,
+            srv_deleted_datetime = CURRENT_TIMESTAMP
+        WHERE srv_id = #{serviceId}
+        AND srv_is_deleted = 0
+    </update>
+
+</mapper>

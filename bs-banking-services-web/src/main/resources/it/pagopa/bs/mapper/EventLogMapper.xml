@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.EventLogMapper">
+
+    <resultMap id="eventLog" type="it.pagopa.bs.checkiban.model.persistence.EventLog">
+        <id column="elo_uid" property="uid" />
+        <result column="elo_credential_id" property="credentialId" />
+        <result column="elo_reference_local_date" property="referenceLocalDate" />
+        <result column="elo_service_code" property="serviceCode" />
+        <result column="elo_destination_topic" property="destinationTopic" />
+        <result column="elo_x_obo_header" property="xOboHeader" />
+        <result column="elo_x_obo_primary" property="xOboPrimary" />
+        <result column="elo_x_correlation_id" property="xCorrelationId" />
+        <result column="elo_event_model_version" property="modelVersion" />
+        <result column="elo_event_model" property="eventModel" />
+    </resultMap>
+
+    <select id="countAllByCredentialAndDate" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM pagopa_tr_event_log
+        WHERE elo_reference_local_date BETWEEN #{fromDate} AND #{toDate}
+        AND elo_credential_id = #{credentialId}
+    </select>
+    
+    <insert id="insertEvent">
+        INSERT INTO pagopa_tr_event_log
+        (
+            elo_uid,
+            elo_credential_id,
+            elo_reference_local_date,
+            elo_service_code,
+            elo_destination_topic,
+            elo_x_obo_header,
+            elo_x_obo_primary,
+            elo_x_correlation_id,
+            elo_inserted_datetime,
+            elo_event_model_version,
+            elo_event_model
+        )
+        VALUES
+        (
+            #{event.uid},
+            #{event.credentialId},
+            #{event.referenceLocalDate},
+            #{event.serviceCode},
+            #{event.destinationTopic},
+            #{event.xOboHeader,jdbcType=VARCHAR},
+            #{event.xOboPrimary},
+            #{event.xCorrelationId},
+            CURRENT_TIMESTAMP,
+            #{event.modelVersion},
+            #{event.eventModel}
+        )
+    </insert>
+
+    <update id="success">
+        UPDATE pagopa_tr_event_log
+        SET elo_delivered = 1, elo_updated_datetime = CURRENT_TIMESTAMP
+        WHERE elo_uid = #{uuid}
+    </update>
+
+    <update id="fail">
+        UPDATE pagopa_tr_event_log
+        SET elo_failures_count = elo_failures_count + 1, elo_delivered = 0, elo_updated_datetime = CURRENT_TIMESTAMP
+        WHERE elo_uid = #{uuid}
+    </update>
+
+    <select id="getFailed" resultMap="eventLog">
+        SELECT *
+        FROM pagopa_tr_event_log
+        WHERE elo_delivered = 0
+        AND (elo_failures_count &lt;= 5 AND elo_failures_count > 0)
+        AND CURRENT_TIMESTAMP - NUMTODSINTERVAL(#{timeout} / 1000 + (elo_failures_count * elo_failures_count), 'SECOND') &gt;= elo_updated_datetime
+        AND elo_inserted_datetime &gt;= #{currentDatetimeMinusDelay}
+        ORDER BY elo_inserted_datetime
+        FETCH NEXT #{maxParallelRetries} ROWS ONLY
+    </select>
+
+</mapper>

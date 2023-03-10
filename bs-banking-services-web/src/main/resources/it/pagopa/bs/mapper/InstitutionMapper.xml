@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.InstitutionMapper">
+
+    <resultMap id="institution" type="it.pagopa.bs.checkiban.model.persistence.Institution">
+        <id column="ins_id" property="institutionId" />
+        <result column="ins_code" property="institutionCode" />
+        <result column="ins_name" property="name" />
+        <result column="ins_cdc_code" property="cdcCode" />
+        <result column="ins_cdc_description" property="cdcDescription" />
+        <result column="ins_credential_id" property="credentialId" />
+        <result column="ins_fiscal_code" property="fiscalCode" />
+        <result column="ins_created_datetime" property="createdDatetime" />
+        <result column="ins_updated_datetime" property="updatedDatetime" />
+
+        <result column="RESULT_COUNT" property="resultCount" />
+    </resultMap>
+
+    <select id="search" resultMap="institution">
+        SELECT ins.*, COUNT(DISTINCT ins.ins_id) OVER() AS RESULT_COUNT
+        FROM pagopa_ma_institution ins
+        <where>
+            <include refid="searchFilters">
+                <property name="__prefix" value="ins."/>
+                <property name="__field" value="filter"/>
+            </include>
+        </where>
+        <include refid="CoreUtils.multipleSorting">
+            <property name="__prefix" value="ins."/>
+        </include>
+        <include refid="CoreUtils.pagination" />
+    </select>
+
+    <sql id="searchFilters">
+        AND ${__prefix}ins_is_deleted = 0
+        <if test="${__field} != null">
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_id"/>
+                <property name="__filter" value="${__field}.institutionId"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_code"/>
+                <property name="__filter" value="${__field}.institutionCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_name"/>
+                <property name="__filter" value="${__field}.name"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_cdc_code"/>
+                <property name="__filter" value="${__field}.cdcCode"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_cdc_description"/>
+                <property name="__filter" value="${__field}.cdcDescription"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_credential_id"/>
+                <property name="__filter" value="${__field}.credentialId"/>
+            </include>
+            <include refid="CoreUtils.fieldSearchCondition">
+                <property name="__column" value="${__prefix}ins_fiscal_code"/>
+                <property name="__filter" value="${__field}.fiscalCode"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}ins_updated_datetime"/>
+                <property name="__filter" value="${__field}.updatedDatetime"/>
+            </include>
+            <include refid="CoreUtils.rangeSearchCondition">
+                <property name="__column" value="${__prefix}ins_created_datetime"/>
+                <property name="__filter" value="${__field}.createdDatetime"/>
+            </include>
+        </if>
+    </sql>
+
+    <select id="getOneByCredentialId" resultMap="institution">
+        SELECT * FROM pagopa_ma_institution
+        WHERE ins_credential_id = #{credentialId}
+        AND ins_is_deleted = 0
+    </select>
+
+    <insert id="createOne" useGeneratedKeys="true" keyProperty="institutionId" keyColumn="ins_id">
+        INSERT INTO pagopa_ma_institution
+        (
+            ins_id,
+            ins_code,
+            ins_name,
+            ins_cdc_code,
+            ins_cdc_description,
+            ins_credential_id,
+            ins_fiscal_code
+        )
+        VALUES
+        (
+            PAGOPA_SQ_INS_ID.nextval,
+            #{institution.institutionCode},
+            #{institution.name},
+            #{institution.cdcCode},
+            #{institution.cdcDescription},
+            #{institution.credentialId},
+            #{institution.fiscalCode}
+        )
+    </insert>
+
+    <select id="getOneById" resultMap="institution">
+        SELECT * FROM pagopa_ma_institution
+        WHERE ins_id = #{institutionId}
+        AND ins_is_deleted = 0
+    </select>
+
+    <update id="updateOne">
+        UPDATE pagopa_ma_institution
+        <set>
+            ins_updated_datetime = CURRENT_TIMESTAMP,
+            <if test="institution.name != null and institution.name != ''">
+                ins_name = #{institution.name},
+            </if>
+            <if test="institution.cdcCode != null and institution.cdcCode != ''">
+                ins_cdc_code = #{institution.cdcCode},
+            </if>
+            <if test="institution.cdcDescription != null and institution.cdcDescription != ''">
+                ins_cdc_description = #{institution.cdcDescription},
+            </if>
+            <if test="institution.credentialId != null and institution.credentialId != ''">
+                ins_credential_id = #{institution.credentialId},
+            </if>
+            <if test="institution.fiscalCode != null and institution.fiscalCode != ''">
+                ins_fiscal_code = #{institution.fiscalCode}
+            </if>
+        </set>
+        WHERE ins_id = #{institutionId}
+        AND ins_is_deleted = 0
+    </update>
+
+    <update id="deleteOneById">
+        UPDATE pagopa_ma_institution
+        SET
+            ins_is_deleted = 1,
+            ins_deleted_datetime = CURRENT_TIMESTAMP
+        WHERE ins_id = #{institutionId}
+        AND ins_is_deleted = 0
+    </update>
+
+</mapper>

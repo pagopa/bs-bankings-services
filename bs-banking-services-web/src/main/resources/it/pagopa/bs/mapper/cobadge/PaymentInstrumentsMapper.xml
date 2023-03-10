@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.pagopa.bs.web.mapper.PaymentInstrumentsMapper">
+
+    <resultMap type="it.pagopa.bs.cobadge.model.persistence.PaymentInstrumentsOp" id="paymentInstrumentsOp">
+        <result column="sr_uid" property="uuid" />
+        <result column="sr_service_provider_name" property="serviceProviderName" />
+        <result column="sr_request" property="request" />
+        <result column="sr_response" property="response" />
+        <result column="sr_execution_status" property="executionStatus" />
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO pagopa_tr_search_request (
+            sr_uid, sr_service_provider_name, sr_request
+        )
+        VALUES(
+            #{uuid}, #{serviceProviderName}, #{request}
+        )
+    </insert>
+
+    <update id="success">
+        UPDATE pagopa_tr_search_request
+        SET sr_is_completed = 1, sr_response = #{response}, sr_updated_datetime = CURRENT_TIMESTAMP
+        WHERE sr_uid = #{uuid}
+        AND sr_service_provider_name = #{serviceProviderName}
+    </update>
+
+    <update id="fail">
+        UPDATE pagopa_tr_search_request
+        SET sr_failures_count = sr_failures_count + 1, sr_is_completed = 0, sr_updated_datetime = CURRENT_TIMESTAMP
+        WHERE sr_uid = #{uuid}
+        AND sr_service_provider_name = #{serviceProviderName}
+    </update>
+
+    <update id="failPermanent">
+        UPDATE pagopa_tr_search_request
+        SET sr_failures_count = 6, sr_is_completed = 0, sr_updated_datetime = CURRENT_TIMESTAMP
+        WHERE sr_uid = #{uuid}
+        AND sr_service_provider_name = #{serviceProviderName}
+    </update>
+
+    <select id="getFailed" resultMap="paymentInstrumentsOp">
+        SELECT *
+        FROM pagopa_tr_search_request
+        WHERE sr_is_completed = 0
+        AND sr_failures_count &lt;= 5
+        AND CURRENT_TIMESTAMP - NUMTODSINTERVAL(#{timeout} / 1000 + (sr_failures_count * sr_failures_count), 'SECOND') >= sr_updated_datetime
+        AND sr_created_datetime &gt;= #{currentDatetimeMinusDelay}
+        ORDER BY sr_created_datetime ASC
+        FETCH NEXT #{parallelism} ROWS ONLY
+    </select>
+
+    <select id="getOld" resultMap="paymentInstrumentsOp" fetchSize="1000">
+        SELECT sr_uid
+        FROM pagopa_tr_search_request
+        WHERE sr_created_datetime &lt;= #{currentDatetimeMinusDelay}
+        FETCH NEXT #{parallelism} ROWS ONLY
+    </select>
+
+    <update id="overrideRequestAndResponse">
+        UPDATE pagopa_tr_search_request
+        <set>
+            sr_request = #{replacementRequest},
+            sr_response = #{replacementResponse}
+        </set>
+        WHERE sr_uid IN
+        <foreach collection="recordsToUpdate" item="recordToUpdate" open="(" close=")" separator=",">
+            #{recordToUpdate.uuid}
+        </foreach>
+    </update>
+
+    <delete id="deleteOldRecords">
+        DELETE FROM pagopa_tr_search_request
+        WHERE sr_uid IN
+        <foreach collection="recordsToDelete" item="recordToDelete" open="(" close=")" separator=",">
+            #{recordToDelete.uuid}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByUuid">
+        DELETE FROM pagopa_tr_search_request WHERE sr_uid = #{uuid}
+    </delete>
+
+    <select id="getRequest" resultMap="paymentInstrumentsOp">
+        SELECT t.*,
+            CASE
+                WHEN sr_is_completed = 1 THEN 'OK'
+                WHEN sr_is_completed = 0 AND sr_failures_count &gt;= 5 THEN 'KO'
+                ELSE 'PENDING'
+            END
+            AS sr_execution_status
+        FROM pagopa_tr_search_request t
+        WHERE t.sr_uid = #{uuid}
+    </select>
+
+    <!-- useful for the mock to simulate delay -->
+    <select id="existsRequestFromServiceProvider" resultType="int">
+        SELECT COUNT(*)
+        FROM pagopa_tr_search_request t
+        WHERE t.sr_uid = #{uuid}
+        AND t.sr_service_provider_name = #{serviceProviderName}
+        AND t.sr_is_completed = 0
+        AND t.sr_failures_count = 0
+    </select>
+
+</mapper>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CoreUtils">
+    <!--
+        this mapper contains common generic sql snippets that can reused in different mappers
+    -->
+
+    <!--
+         creates a filter condition for a ParameterSearch instance, applying appropriate logic. For string parameters,
+         the additional "contains" and "ignoreCase" properties are honoured.
+         Accepts a "__filter" parameter with the expression evaluating to the instance to be evaluated, and
+         a "__column" parameter with the expression (usually a column) to be matched against the filter
+    -->
+    <sql id="fieldSearchCondition">
+        <if test="${__filter} != null">
+            <choose>
+                <!-- in -->
+                <when test="${__filter}.ins != null">
+                    <if test="${__filter}.ignoreCase">
+                        AND LOWER(${__column}) IN
+                        <foreach collection="${__filter}.ins" separator="," open="(" close=")" item="__item">
+                            LOWER(#{__item})
+                        </foreach>
+                    </if>
+                    <if test="not ${__filter}.ignoreCase">
+                        AND ${__column} IN
+                        <foreach collection="${__filter}.ins" separator="," open="(" close=")" item="__item">
+                            #{__item}
+                        </foreach>
+                    </if>
+                </when>
+                <!-- equals -->
+                <when test="${__filter}.equals != null">
+                    <if test="${__filter}.ignoreCase">
+                        AND LOWER(${__column}) = LOWER(#{${__filter}.equals})
+                    </if>
+                    <if test="not ${__filter}.ignoreCase">
+                        AND ${__column} = #{${__filter}.equals}
+                    </if>
+                </when>
+                <!-- contains -->
+                <when test="${__filter}.contains != null">
+                    <if test="${__filter}.ignoreCase">
+                        AND LOWER(${__column}) LIKE '%' || LOWER(#{${__filter}.contains}) || '%'
+                    </if>
+                    <if test="not ${__filter}.ignoreCase">
+                        AND ${__column} LIKE '%' || #{${__filter}.contains} || '%'
+                    </if>
+                </when>
+                <!-- empty -->
+                <when test="${__filter}.empty != null">
+                    <if test="${__filter}.empty">
+                        AND ${__column} IS NULL
+                    </if>
+                    <if test="not ${__filter}.empty">
+                        AND ${__column} IS NOT NULL
+                    </if>
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <!--
+         creates a filter condition for a ParameterSearch instance, applying appropriate logic.
+         This is a specific version for Boolean parameters.
+         Accepts a "__filter" parameter with the expression evaluating to the instance to be evaluated, and
+         a "__column" parameter with the expression (usually a column) to be matched against the filter
+    -->
+    <sql id="booleanSearchCondition">
+        <if test="${__filter} != null">
+            <choose>
+                <!-- equals -->
+                <when test="${__filter}.equals != null">
+                    AND LOWER(${__column}) = LOWER(#{${__filter}.equals})
+                </when>
+                <!-- empty -->
+                <when test="${__filter}.empty != null">
+                    <if test="${__filter}.empty">
+                        AND ${__column} IS NULL
+                    </if>
+                    <if test="not ${__filter}.empty">
+                        AND ${__column} IS NOT NULL
+                    </if>
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <!--
+         creates a filter condition for a ParameterSearch instance, applying appropriate logic. For string parameters,
+         the additional "contains" and "ignoreCase" properties are honoured.
+         Accepts a "__filter" parameter with the expression evaluating to the instance to be evaluated, and
+         a "__column" parameter with the expression (usually a column) to be matched against the filter
+    -->
+    <sql id="rangeSearchCondition">
+        <if test="${__filter} != null">
+            <choose>
+                <!-- greaterThan - lesserThan -->
+                <when test="${__filter}.greaterThan != null or ${__filter}.lesserThan != null">
+                    <!-- greaterThan -->
+                    <if test="${__filter}.greaterThan != null">
+                        AND ${__column} &gt; #{${__filter}.greaterThan, typeHandler=it.pagopa.bs.web.handler.ToJsonStringTypeHandler}
+                    </if>
+                    <!-- lesserThan -->
+                    <if test="${__filter}.lesserThan != null">
+                        AND ${__column} &lt; #{${__filter}.lesserThan, typeHandler=it.pagopa.bs.web.handler.ToJsonStringTypeHandler}
+                    </if>
+                </when>
+                <!-- greaterThanEquals - lesserThanEquals -->
+                <when test="${__filter}.greaterThanEquals != null or ${__filter}.lesserThanEquals != null">
+                    <!-- greaterThanEquals -->
+                    <if test="${__filter}.greaterThanEquals != null">
+                        AND ${__column} &gt;= #{${__filter}.greaterThanEquals, typeHandler=it.pagopa.bs.web.handler.ToJsonStringTypeHandler}
+                    </if>
+                    <!-- lesserThanEquals -->
+                    <if test="${__filter}.lesserThanEquals != null">
+                        AND ${__column} &lt;= #{${__filter}.lesserThanEquals, typeHandler=it.pagopa.bs.web.handler.ToJsonStringTypeHandler}
+                    </if>
+                </when>
+                <!-- empty -->
+                <when test="${__filter}.empty != null">
+                    <if test="${__filter}.empty">
+                        AND ${__column} IS NULL
+                    </if>
+                    <if test="not ${__filter}.empty">
+                        AND ${__column} IS NOT NULL
+                    </if>
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <!--
+        creates the sql instructions for pagination (offset and limit) if the relevant properties are set to something
+        different from 0 (here we are assuming a limit of 0 means no limit was set). In order to be used two parameters
+        "offset" and "limit" must be in scope, either directly exposed by the query parameters, or explicitly bound
+        with a bind directive before adding this snippet
+    -->
+    <sql id="pagination">
+        <if test="offset != 0">
+            OFFSET #{offset} ROWS
+        </if>
+        <if test="limit != 0">
+            FETCH NEXT #{limit} ROWS ONLY
+        </if>
+    </sql>
+
+    <!--
+        This is a multiple fields sorting version that accepts a list of SortingModel ad input with inside the fieldNames.
+    -->
+    <sql id="multipleSorting">
+        ORDER BY
+        <foreach collection="sortingItems" item="sortingItem" separator=",">
+            ${__prefix}${sortingItem.fieldName} ${sortingItem.direction.type}
+        </foreach>
+    </sql>
+</mapper>
