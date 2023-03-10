@@ -97,19 +97,19 @@ This is a pure *backend* service implemented with *Spring Boot Framework* and th
 
 Furthermore, it uses *Oracle Express Edition 21* as a DB and *Zookeeper + Kafka* as a message queue to send near-realtime events to a *AWS Firestore* endpoint.
 
-To handle distributed Locks for scheuduler processes, it uses Hazelcast (In-Memory Data Grid).
+To handle distributed Locks for scheduler processes, it uses Hazelcast (In-Memory Data Grid).
 Of course, this is not necessary if you run locally, but with 2 instances and up running at the same time it becomes very important.
 
-todo: complete
+It uses *Project Reactor*(https://projectreactor.io/) and a reactive-programming model to handle high levels of API call load.
 
 ### Components Diagram
 
 The following section contains an high level overview of the system components and a detailed data model diagram.
 
-* Backend
+#### Backend
 ![BackendDiagram](doc/BankingServices-Diagrams.png)
 
-* Database Model
+#### Database Model
 ![DataModelDiagram](doc/pagopa_db_tables.png)
 
 ### Sequence Diagram
