@@ -12,8 +12,9 @@ The official API documentation is available here
 ## Recommended Requirements
 
 * Windows 10 / MacOS
-* 16 GB of RAM
+* 16 GB of RAM (your docker installation must specify at least 4GB of RAM for each container)
 * Docker (tested on 20.10.21)
+* Docker Compose (v2.15.1)
 
 ## Setup
 
