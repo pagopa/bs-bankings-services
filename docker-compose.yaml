@@ -3,59 +3,64 @@ name: bs-banking-services
 services:
 
   zookeeper:
-    image: bitnami/zookeeper:3.6.2
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper
     container_name: zookeeper
-    restart: unless-stopped
-    environment:
-      ALLOW_ANONYMOUS_LOGIN: yes
     healthcheck:
-      test: "./opt/bitnami/zookeeper/bin/zkServer.sh status"
-      interval: 7s
-      timeout: 10s
-      retries: 30
-      start_period: 40s
+      test: nc -z localhost 2181 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    environment:
+      ZOO_MY_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
     ports:
-      - 2181:2181
-    networks:
-      - backend
-    
+      - "2181:2181"
+
   kafka:
-    image: bitnami/kafka:3.3.1
+    image: confluentinc/cp-kafka:latest
     container_name: kafka
-    restart: unless-stopped
-    environment:
-      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_CFG_LISTENERS: CLIENT://:9092,EXTERNAL://:9093
-      KAFKA_CFG_ADVERTISED_LISTENERS: CLIENT://kafka:9092,EXTERNAL://localhost:9093
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: CLIENT
-      ALLOW_PLAINTEXT_LISTENER: yes
-      KAFKA_ZOOKEEPER_TLS_VERIFY_HOSTNAME: false
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
+    hostname: kafka
     healthcheck:
-      test: "kafka-topics.sh --bootstrap-server host.docker.internal:9092 --describe --topic bs.pagopa.checkiban.reports"
+      test: "kafka-topics --bootstrap-server kafka:9092 --describe --topic bs.pagopa.checkiban.reports"
       interval: 5s
       timeout: 10s
       retries: 30
       start_period: 20s
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
     depends_on:
       zookeeper:
         condition: service_healthy
-    ports:
-      - 9092:9092
-    networks:
-      - backend
-
+  
   kafka-init:
-    image: bitnami/kafka:3.3.1
+    image: confluentinc/cp-kafka:latest
     container_name: kafka-init
-    command: "kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic bs.pagopa.checkiban.reports"
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:9092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic bs.pagopa.checkiban.reports
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:9092 --list
+      "
     depends_on:
+      zookeeper:
+        condition: service_healthy
       kafka:
         condition: service_started
     init: true
-    networks:
-      - backend
 
   hazelcast:
     image: hazelcast/hazelcast:4.2.6
@@ -66,8 +71,6 @@ services:
     ports:
       - 5701:5701
       - 5702:5702
-    networks:
-      - backend
 
   aws-mock:
     image: motoserver/moto:latest
@@ -75,8 +78,6 @@ services:
     restart: unless-stopped
     ports:
       - 5000:5000
-    networks:
-      - backend
     
   oracle:
     image: gvenzl/oracle-xe:21-slim-faststart
@@ -86,7 +87,7 @@ services:
       ORACLE_DATABASE: bs
       ORACLE_PASSWORD: test
     healthcheck:
-      test: "cat /opt/oracle/diag/rdbms/xe/XE/alert/log.xml | grep 'Completed: ALTER DATABASE OPEN' || exit 1"
+      test: "cat /opt/oracle/diag/rdbms/xe/XE/alert/log.xml | grep 'Pluggable database BS opened read write' || exit 1"
       interval: 10s
       timeout: 5s
       retries: 50
@@ -94,8 +95,6 @@ services:
       - ./schema:/container-entrypoint-initdb.d
     ports:
       - 1521:1521
-    networks:
-      - backend
     
   backend:
     container_name: bs-backend
@@ -109,12 +108,9 @@ services:
       AWS_SECURITY_TOKEN: 'mock'
       AWS_SESSION_TOKEN: 'mock'
       AWS_DEFAULT_REGION: 'us-east-1'
-    healthcheck:
-      test: "curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1"
-      interval: 20s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
+    ports:
+      - 8080:8080
+      - 5005:5005
     depends_on:
       kafka:
         condition: service_healthy
@@ -122,11 +118,5 @@ services:
         condition: service_healthy
       hazelcast:
         condition: service_started
-    ports:
-      - 8080:8080
-      - 5005:5005
-    networks:
-      - backend
-
-networks:
-  backend:
+      aws-mock:
+        condition: service_started
