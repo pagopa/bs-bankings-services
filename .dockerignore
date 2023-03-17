@@ -6,3 +6,11 @@ bs-banking-services-checkiban/target/*
 bs-banking-services-common/target/*
 bs-banking-services-web/target/*
 schema/*
+doc/*
+diagrams/*
+collection/*
+start.sh
+stop.sh
+clean.sh
+.idea
+.vscode
