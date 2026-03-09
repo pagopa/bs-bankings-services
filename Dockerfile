@@ -1,7 +1,7 @@
 ARG APP_FOLDER=/home/build
 ARG MVN_REPO_FOLDER=/home/.m2
 
-FROM maven:3.8.7-amazoncorretto-8 AS build
+FROM maven:3.8.7-amazoncorretto-8@sha256:ec86ad98267c73eae1b7fb1bd0142723e4c9f05cc52f3466a548ce6f6f471e26 AS build
 ARG APP_FOLDER
 ARG MVN_REPO_FOLDER
 COPY . ${APP_FOLDER}
